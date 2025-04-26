@@ -12,6 +12,7 @@ public class Gamer : MonoBehaviour
 
     public string CurrentBoard = "";
     public string connecting_uuid = "";
+    public GameObject FakeLine;
     public float mult = 1;
     public void Start()
     {
@@ -54,6 +55,17 @@ public class Gamer : MonoBehaviour
             e.rt.anchoredPosition = - Viewport.Instance.curpos;
             myhomies.Add(e.UUID, e);
         }
+        if(CurrentMouse == MouseState.Connecting)
+        {
+            var e = myhomies[connecting_uuid];
+            var d = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            d.z = e.transform.position.z;
+            NodeObject.LineAllign(FakeLine, e.transform.position, d);
+        }
+        if(CurrentMouse == MouseState.DraggingWait)
+        { 
+            if(!Input.GetKey(KeyCode.Mouse0)) CurrentMouse = MouseState.None;
+        }
     }
 
     public void SaveAll()
@@ -86,6 +98,7 @@ public class Gamer : MonoBehaviour
         None,
         Connecting,
         Dragging,
+        DraggingWait,
     }
 
 

@@ -58,6 +58,27 @@ public class NodeObject : MonoBehaviour
 
     public void UpdateConnectionLines()
     {
+        List<string> aa = new List<string>();
+        foreach(var a in Connections)
+        {
+            if (!aa.Contains(a))
+            {
+                if (Gamer.Instance.myhomies.ContainsKey(a))
+                {
+                    aa.Add(a);
+                }
+                else
+                {
+                    if (ConnectionLines.ContainsKey(a))
+                    {
+                        Destroy(ConnectionLines[a]);
+                        ConnectionLines.Remove(a);
+                    }
+                }
+            }
+        }
+        if(aa.Contains(UUID)) aa.Remove(UUID);
+        Connections = aa;
         foreach (var conn in Connections)
         {
             var e = Gamer.Instance.myhomies[conn];
@@ -71,18 +92,22 @@ public class NodeObject : MonoBehaviour
             {
                 e.ConnectionLines.Add(UUID, gm);
             }
-            gm.transform.position = Vector3.Lerp(transform.position, e.transform.position, 0.5f);
-            gm.transform.rotation = RandomFunctions.PointAtPoint2D(transform.position, e.transform.position, 0);
-            gm.transform.localScale = new Vector3(RandomFunctions.Dist(transform.position, e.transform.position) * 0.8f / Viewport.Instance.scalem, 1, 1);
+            LineAllign(gm, transform.position, e.transform.position);
         }
     }
-
+    public static void LineAllign(GameObject gm, Vector3 pos, Vector3 otherpos)
+    {
+        gm.transform.position = Vector3.Lerp(pos, otherpos, 0.5f);
+        gm.transform.rotation = RandomFunctions.PointAtPoint2D(pos, otherpos, 0);
+        gm.transform.localScale = new Vector3(RandomFunctions.Dist(pos, otherpos) * 0.8f / Viewport.Instance.scalem, 1, 1);
+    }
 
     public void Update()
     {
         bool ww = Gamer.Instance.IsHovering(gameObject);
         var ee = Input.GetKey(KeyCode.Mouse0);
         bool rr = false;
+        var dd = dragstate == -1 && Gamer.Instance.CurrentMouse == Gamer.MouseState.None;
         if (washov || ww)
         {
             for(int i = 0; i < 4; i++)
@@ -90,7 +115,7 @@ public class NodeObject : MonoBehaviour
                 bool smex = Gamer.Instance.IsHovering(refs[i]);
                 if (smex)
                 {
-                    if(ee && Gamer.Instance.CurrentMouse == Gamer.MouseState.None) dragstate = i;
+                    if(ee && dd) dragstate = i;
                     ww = true;
                     rr = true;
                     break;
@@ -98,28 +123,54 @@ public class NodeObject : MonoBehaviour
             }
         }
 
-        if (!rr && ee && ww && dragstate == -1 && Gamer.Instance.CurrentMouse == Gamer.MouseState.None)
+        if (!rr && ee && ww && dd)
         {
             dragstate = 4;
         }
 
-        if (ww && dragstate == -1 && Gamer.Instance.CurrentMouse == Gamer.MouseState.None && Input.GetKeyDown(KeyCode.Q))
+        if (ww && dd && Input.GetKeyDown(KeyCode.Q))
         {
             Gamer.Instance.CurrentMouse = Gamer.MouseState.Connecting;
             Gamer.Instance.connecting_uuid = UUID;
+            Gamer.Instance.FakeLine = Instantiate(Gamer.Instance.things[3], transform.position, transform.rotation, Gamer.Instance.things[2].transform);
         }
         else if (ww && ee && Gamer.Instance.CurrentMouse == Gamer.MouseState.Connecting && Gamer.Instance.connecting_uuid != UUID)
         {
             var nerd = Gamer.Instance.myhomies[Gamer.Instance.connecting_uuid];
             Connections.Add(Gamer.Instance.connecting_uuid);
             nerd.Connections.Add(UUID);
-            Gamer.Instance.CurrentMouse = Gamer.MouseState.None;
+            Destroy(Gamer.Instance.FakeLine);
+            Gamer.Instance.connecting_uuid = "";
+            Gamer.Instance.CurrentMouse = Gamer.MouseState.DraggingWait;
             UpdateConnectionLines();
         }
 
+        if(ww && Input.GetKeyDown(KeyCode.Backspace))
+        {
+            foreach (var a in Connections)
+            {
+                var aa = Gamer.Instance.myhomies[a];
+                aa.Connections.Remove(a);
+                Destroy(ConnectionLines[aa.UUID]);
+                aa.UpdateConnectionLines();
+            }
+
+            if(Gamer.Instance.connecting_uuid == UUID)
+            {
+                Gamer.Instance.connecting_uuid = "";
+                Gamer.Instance.CurrentMouse = Gamer.MouseState.None;
+                Destroy(Gamer.Instance.FakeLine);
+            }
+            Gamer.Instance.myhomies.Remove(UUID);
+            Destroy(gameObject);
+            return;
+        }
+
+
+
         if (dragstate != -1)
         {
-
+            Gamer.Instance.connecting_uuid = UUID;
             var eee = rt.sizeDelta;
             var pos = rt.anchoredPosition;
             switch (dragstate)
