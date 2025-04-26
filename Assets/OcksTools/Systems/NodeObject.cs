@@ -56,7 +56,7 @@ public class NodeObject : MonoBehaviour
         if (Connections.Contains("")) Connections.Remove("");
     }
 
-    public void UpdateConnectionLines() /
+    public void UpdateConnectionLines()
     {
         foreach (var conn in Connections)
         {
