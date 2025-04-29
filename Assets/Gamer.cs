@@ -18,6 +18,8 @@ public class Gamer : MonoBehaviour
     public string connecting_uuid = "";
     public GameObject FakeLine;
     public float mult = 1;
+
+
     public void Start()
     {
         //StartCoroutine(gumgum());
@@ -26,11 +28,7 @@ public class Gamer : MonoBehaviour
     public IEnumerator WaitToLoad()
     {
         yield return new WaitForSeconds(0.1f);
-        LoadAll("RCD");
-        foreach (var a in myhomies)
-        {
-            a.Value.UpdateConnectionLines();
-        }
+        LoadAll(CurrentBoard);
     }
 
     public bool captured_esc = false;
@@ -52,6 +50,7 @@ public class Gamer : MonoBehaviour
     public bool inmenu = false;
     private void Update()
     {
+
         CanHover = true;
         if (InputManager.IsKeyDown(KeyCode.Space, "Game") || (CurrentMouse==MouseState.Connecting && InputManager.IsKeyDown(KeyCode.Mouse2, "Game")))
         {
@@ -88,6 +87,7 @@ public class Gamer : MonoBehaviour
         {
             if (!inmenu && CurrentMouse == MouseState.Connecting)
             {
+                captured_esc = true;
                 CurrentMouse = MouseState.None;
                 connecting_uuid = "";
                 Destroy(FakeLine);
@@ -144,6 +144,17 @@ public class Gamer : MonoBehaviour
     
     public void LoadAll(string dict)
     {
+        foreach(var a in myhomies)
+        {
+            foreach(var b in a.Value.ConnectionLines)
+            {
+                if(b.Value!=null) Destroy(b.Value);
+            }
+            Destroy(a.Value.gameObject);
+        }
+        myhomies.Clear();
+        Viewport.Instance.PosTarget = Vector3.zero;
+
         CurrentBoard = dict;
         SaveSystem.Instance.GetDataFromFile(CurrentBoard);
         var e = SaveSystem.Instance.GetList("Objects", new List<string>(), CurrentBoard);
@@ -155,7 +166,26 @@ public class Gamer : MonoBehaviour
             d.StringToItem(a);
             myhomies.Add(d.UUID, d);
         }
+
+        foreach (var a in myhomies)
+        {
+            a.Value.UpdateConnectionLines();
+        }
+        //Viewport.Instance.scalem = 1;
+        CurrentMouse = MouseState.None;
+        connecting_uuid = "";
+        inmenu = false;
+        hov_uuid = "";
+
     }
+
+    public IEnumerator gamin()
+    {
+        yield return new WaitForFixedUpdate();
+        Viewport.Instance.scalem = 1;
+    }
+
+
     public enum MouseState
     {
         None,
@@ -178,6 +208,7 @@ public class Gamer : MonoBehaviour
     }
     public void CloseEditorMenu(string uuid)
     {
+        captured_esc = true;
         inmenu = false;
         InputManager.ResetLockLevel();
         var aa = Tags.refs["EditorMenu"].GetComponent<EditorMenu>();
@@ -254,6 +285,39 @@ public class Gamer : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
         Debug.Log("4" + Git.Command("C:\\Users\\milom\\AppData\\Roaming\\Ocks\\Storyboard", "status"));*/
     }
+
+
+    private void LateUpdate()
+    {
+        if(!captured_esc && Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (inmenu)
+            {
+                CloseSwitcher();
+            }
+            else
+            {
+                OpenSwitcher();
+            }
+        }
+        captured_esc = false;
+    }
+
+    public void OpenSwitcher()
+    {
+        inmenu = true;
+        InputManager.SetLockLevel("Editor");
+        Tags.refs["Switcher"].SetActive(true);
+        Tags.refs["Switcher"].GetComponent<SwitcherMover>().selection = AvailableGraphs.IndexOf(CurrentBoard);
+        Tags.refs["Switcher"].GetComponent<SwitcherMover>().UpdateDisplay();
+    }
+    public void CloseSwitcher()
+    {
+        inmenu = false;
+        InputManager.ResetLockLevel();
+        Tags.refs["Switcher"].SetActive(false);
+    }
+
 
     public string CommitAndSync()
     {
