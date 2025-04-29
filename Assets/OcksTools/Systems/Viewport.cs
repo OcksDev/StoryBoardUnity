@@ -33,12 +33,17 @@ public class Viewport : MonoBehaviour
     float timer = 0;
     private void OnApplicationFocus(bool focus)
     {
-        var c = Camera.main.ScreenToWorldPoint(Input.mousePosition) * mousescale;
-        c.z = 0;
-        oldmouseshung = c;
+        StartCoroutine(waitsex());
         timer = 0.01f;
     }
-
+    public IEnumerator waitsex()
+    {
+        yield return null;
+        var c = Camera.main.ScreenToWorldPoint(Input.mousePosition) * mousescale;
+        c.z = 0;
+        MouseOffset = Vector3.zero;
+        oldmouseshung = c;
+    }
     void Update()
     {
         if(timer > 0)
@@ -47,11 +52,11 @@ public class Viewport : MonoBehaviour
             return;
         }
         Vector3 dir = Vector3.zero;
-        if (InputManager.IsKey("move_forward")) dir -= Vector3.up;
-        if (InputManager.IsKey("move_back")) dir -= Vector3.down;
-        if (InputManager.IsKey("move_right")) dir -= Vector3.right;
-        if (InputManager.IsKey("move_left")) dir -= Vector3.left;
-        if (Input.GetAxis("Mouse ScrollWheel") != 0f) // forward
+        if (InputManager.IsKey("move_forward", "Game")) dir -= Vector3.up;
+        if (InputManager.IsKey("move_back", "Game")) dir -= Vector3.down;
+        if (InputManager.IsKey("move_right", "Game")) dir -= Vector3.right;
+        if (InputManager.IsKey("move_left", "Game")) dir -= Vector3.left;
+        if (Input.GetAxis("Mouse ScrollWheel") != 0f && InputManager.CheckAvailability("Game")) // forward
         {
             scalem = Mathf.Clamp(scalem + (Input.GetAxis("Mouse ScrollWheel") * scrolmult * (scalem)), 0.01f, 5f);
         }
@@ -59,6 +64,7 @@ public class Viewport : MonoBehaviour
         var c = Camera.main.ScreenToWorldPoint(Input.mousePosition) * mousescale;
         c.z = 0;
         MouseOffset = (c - oldmouseshung) * (1 / scalem);
+
         oldmouseshung = c;
         if (InputManager.IsKey(KeyCode.Mouse1))
         {

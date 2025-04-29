@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class NodeObject : MonoBehaviour
 {
@@ -12,6 +14,9 @@ public class NodeObject : MonoBehaviour
     public Dictionary<string,GameObject> ConnectionLines = new Dictionary<string, GameObject>();
     bool washov = false;
     public RectTransform rt;
+
+    public TextMeshProUGUI titler;
+    public Image selff;
 
     public string Name = "";
     public string Desc = "";
@@ -25,6 +30,7 @@ public class NodeObject : MonoBehaviour
         {
             refs[i].SetActive(false);
         }
+        UpdateDisplay();
     }
 
     public int dragstate = -1;
@@ -40,6 +46,7 @@ public class NodeObject : MonoBehaviour
             {"Scl", Scale.ToString()},
             {"Name", Name.ToString()},
             {"Desc", Desc.ToString()},
+            {"Col", ColorUtility.ToHtmlStringRGB(Color)},
         };
         return Converter.EscapedDictionaryToString(list);
     }
@@ -50,6 +57,7 @@ public class NodeObject : MonoBehaviour
         UUID = e["UUID"];
         Name = e["Name"];
         Desc = e["Desc"];
+        Color = Converter.StringToColor(e["Col"]);
         rt.anchoredPosition = Converter.StringToVector3(e["Pos"]);
         rt.sizeDelta = Converter.StringToVector3(e["Scl"]);
         Connections = Converter.StringToList(e["Cons"]);
@@ -85,12 +93,14 @@ public class NodeObject : MonoBehaviour
             if (!ConnectionLines.ContainsKey(conn))
             {
                 var a = Instantiate(Gamer.Instance.things[3], transform.position, Quaternion.identity, Gamer.Instance.things[2].transform);
+                a.GetComponent<LineNerd>().oneparentuuid = UUID;
                 ConnectionLines.Add(conn, a);
             }
             var gm = ConnectionLines[conn];
             if (!e.ConnectionLines.ContainsKey(UUID))
             {
                 e.ConnectionLines.Add(UUID, gm);
+                gm.GetComponent<LineNerd>().otherparentuuid = e.UUID;
             }
             LineAllign(gm, transform.position, e.transform.position);
         }
@@ -105,7 +115,7 @@ public class NodeObject : MonoBehaviour
     public void Update()
     {
         bool ww = Gamer.Instance.IsHovering(gameObject);
-        var ee = Input.GetKey(KeyCode.Mouse0);
+        var ee = InputManager.IsKey(KeyCode.Mouse0, "Game");
         bool rr = false;
         var dd = dragstate == -1 && Gamer.Instance.CurrentMouse == Gamer.MouseState.None;
         if (washov || ww)
@@ -128,27 +138,29 @@ public class NodeObject : MonoBehaviour
             dragstate = 4;
         }
 
-        if (ww && dd && Input.GetKeyDown(KeyCode.Q))
+
+        if (ww && dd && InputManager.IsKeyDown(KeyCode.Mouse2, "Game"))
+        {
+            Gamer.Instance.OpenEditorMenu(UUID);
+        }
+
+
+        if (ww && dd && InputManager.IsKeyDown(KeyCode.Q, "Game"))
         {
             Gamer.Instance.CurrentMouse = Gamer.MouseState.Connecting;
             Gamer.Instance.connecting_uuid = UUID;
             Gamer.Instance.FakeLine = Instantiate(Gamer.Instance.things[3], transform.position, transform.rotation, Gamer.Instance.things[2].transform);
         }
-        else if (ww && ee && Gamer.Instance.CurrentMouse == Gamer.MouseState.Connecting && Gamer.Instance.connecting_uuid != UUID)
+        else if (ww && Gamer.Instance.CurrentMouse == Gamer.MouseState.Connecting && (InputManager.IsKeyDown(KeyCode.Q, "Game")|| InputManager.IsKeyDown(KeyCode.Mouse0, "Game")) && Gamer.Instance.connecting_uuid != UUID)
         {
-            var nerd = Gamer.Instance.myhomies[Gamer.Instance.connecting_uuid];
-            Connections.Add(Gamer.Instance.connecting_uuid);
-            nerd.Connections.Add(UUID);
-            Destroy(Gamer.Instance.FakeLine);
-            Gamer.Instance.connecting_uuid = "";
-            Gamer.Instance.CurrentMouse = Gamer.MouseState.DraggingWait;
-            UpdateConnectionLines();
+            CompleteLineConnect();
         }
 
-        if(ww && Input.GetKeyDown(KeyCode.Backspace))
+        if(ww && InputManager.IsKeyDown(KeyCode.Backspace, "Game"))
         {
             foreach (var a in Connections)
             {
+                if(!Gamer.Instance.myhomies.ContainsKey(a)) { continue; }
                 var aa = Gamer.Instance.myhomies[a];
                 aa.Connections.Remove(a);
                 Destroy(ConnectionLines[aa.UUID]);
@@ -213,6 +225,7 @@ public class NodeObject : MonoBehaviour
 
         if (ww || dragstate != -1)
         {
+            Gamer.Instance.hov_uuid = UUID;
             if(!washov)
             {
                 for (int i = 0; i < 4; i++)
@@ -243,4 +256,22 @@ public class NodeObject : MonoBehaviour
             }
         }
     }
+
+    public void CompleteLineConnect()
+    {
+        var nerd = Gamer.Instance.myhomies[Gamer.Instance.connecting_uuid];
+        Connections.Add(Gamer.Instance.connecting_uuid);
+        nerd.Connections.Add(UUID);
+        Destroy(Gamer.Instance.FakeLine);
+        Gamer.Instance.connecting_uuid = "";
+        Gamer.Instance.CurrentMouse = Gamer.MouseState.DraggingWait;
+        UpdateConnectionLines();
+    }
+
+    public void UpdateDisplay()
+    {
+        titler.text = Name;
+        selff.color = Color;
+    }
+
 }

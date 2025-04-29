@@ -467,9 +467,11 @@ MonoBehaviour:
   - {fileID: 2781827275086553921}
   - {fileID: 3023780693110133829}
   rt: {fileID: 6092406377358551663}
+  titler: {fileID: 9184952492123884582}
+  selff: {fileID: 6092406377358551648}
   Name: 
   Desc: 
-  Color: {r: 0, g: 0, b: 0, a: 0}
+  Color: {r: 0.6901961, g: 0.6901961, b: 0.6901961, a: 1}
   dragstate: -1
 --- !u!1 &7737261828954920770
 GameObject:
