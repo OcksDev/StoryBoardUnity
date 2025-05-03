@@ -35,10 +35,25 @@ public class NodeObject : MonoBehaviour
 
     public int dragstate = -1;
 
+    public Dictionary<string,string> GetBase()
+    {
+        return new Dictionary<string, string>() {
+            {"UUID", ""},
+            {"Cons", ""},
+            {"Pos", ""},
+            {"Scl", ""},
+            {"Name", ""},
+            {"Desc", ""},
+            {"Col", ""},
+        };
+    }
+
+
     public string ItemToString()
     {
         Position = rt.anchoredPosition;
         Scale = rt.sizeDelta;
+        var cd = GetBase();
         Dictionary<string,string> list = new Dictionary<string,string>() {
             {"UUID", UUID },
             {"Cons", Converter.ListToString(Connections)},
@@ -48,13 +63,23 @@ public class NodeObject : MonoBehaviour
             {"Desc", Desc.ToString()},
             {"Col", ColorUtility.ToHtmlStringRGB(Color)},
         };
-        return Converter.EscapedDictionaryToString(list);
+        foreach(var a in list)
+        {
+            cd[a.Key] = a.Value;
+        }
+        return Converter.EscapedDictionaryToString(cd);
     }
     
     public void StringToItem(string ee)
     {
-        var e = Converter.EscapedStringToDictionary(ee);
+        var e = GetBase();
+        var wank = Converter.EscapedStringToDictionary(ee);
+        foreach(var a in wank)
+        {
+            e[a.Key] = a.Value;
+        }
         UUID = e["UUID"];
+        Debug.Log(e["UUID"]);
         Name = e["Name"];
         Desc = e["Desc"];
         Color = Converter.StringToColor(e["Col"]);

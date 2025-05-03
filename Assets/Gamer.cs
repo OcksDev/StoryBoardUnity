@@ -6,6 +6,7 @@ using System.Threading;
 using UnityEngine.EventSystems;
 using TMPro;
 using UnityEngine.UI;
+using System;
 public class Gamer : MonoBehaviour
 {
     public List<GameObject> things;
@@ -133,6 +134,7 @@ public class Gamer : MonoBehaviour
 
     public void SaveAll()
     {
+        //return;
         List<string> fins = new List<string>();
         foreach(var a in myhomies)
         {
@@ -156,12 +158,17 @@ public class Gamer : MonoBehaviour
         Viewport.Instance.PosTarget = Vector3.zero;
 
         CurrentBoard = dict;
-        SaveSystem.Instance.GetDataFromFile(CurrentBoard);
-        var e = SaveSystem.Instance.GetList("Objects", new List<string>(), CurrentBoard);
+        FileSystem.Instance.AssembleFilePaths();
+        var fp = SaveSystem.Instance.DictNameToFilePath(dict);
+
+        var text = File.ReadAllText(fp);
+        text = text.Substring("Objects: ".Length);
+        var e = Converter.EscapedStringToList(text);
         var ee = things[0].transform.position;
         foreach (var a in e)
         {
             if (a == "" || a == " ") continue;
+            Debug.Log("Found thiung");
             var d = Instantiate(things[1], ee, Quaternion.identity, things[0].transform).GetComponent<NodeObject>();
             d.StringToItem(a);
             myhomies.Add(d.UUID, d);
