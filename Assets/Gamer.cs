@@ -34,6 +34,7 @@ public class Gamer : MonoBehaviour
     {
         yield return new WaitForSeconds(0.1f);
         LoadAll(CurrentBoard);
+        Tags.refs["GitLoad"].gameObject.SetActive(false);
     }
 
     public bool captured_esc = false;
@@ -353,13 +354,16 @@ public class Gamer : MonoBehaviour
                 ToggleUtilMenu();
             }
         }
-
-        if(ree && !inmenu)
+        else if(ree && !inmenu)
         {
             if (Input.GetKeyDown(KeyCode.Alpha1))
             {
                 ToggleGitMenu();
             }
+        }
+        else if (gitmenu && Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            SexAndSync();
         }
         captured_esc = false;
     }
@@ -387,18 +391,32 @@ public class Gamer : MonoBehaviour
 
     public void SexAndSync()
     {
+        Tags.refs["GitLoad"].gameObject.SetActive(true);
+        StartCoroutine(a());
+    }
+    public IEnumerator a()
+    {
+        yield return null;
         SaveAll();
         var rc = CommitAndSync();
         Tags.refs["GitLast"].GetComponent<TextMeshProUGUI>().text = "Git Last: \n" + rc;
+        Tags.refs["GitLoad"].gameObject.SetActive(false);
     }
+
     public void FuckAndShit()
     {
+        Tags.refs["GitLoad"].gameObject.SetActive(true);
+        StartCoroutine(b());
+
+    }
+    public IEnumerator b()
+    {
+        yield return null;
         SaveAll();
         Tags.refs["GitSure"].gameObject.SetActive(false);
         var rc = PanicButton();
         Tags.refs["GitLast"].GetComponent<TextMeshProUGUI>().text = "Git Last: \n" + rc;
         StartCoroutine(WaitToLoad());
-
     }
 
     public string CommitAndSync()
