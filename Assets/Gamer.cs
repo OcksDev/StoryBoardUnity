@@ -255,6 +255,7 @@ public class Gamer : MonoBehaviour
     }
     public void UpdateGitMenu()
     {
+        inmenu = gitmenu;
         Tags.refs["GitMenu"].gameObject.SetActive(gitmenu);
         Tags.refs["GitSure"].gameObject.SetActive(false);
     }
@@ -342,6 +343,22 @@ public class Gamer : MonoBehaviour
             else
             {
                 OpenSwitcher();
+            }
+        }
+        
+        if(Input.GetKeyDown(KeyCode.Tab))
+        {
+            if (!inmenu)
+            {
+                ToggleUtilMenu();
+            }
+        }
+
+        if(ree && !inmenu)
+        {
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                ToggleGitMenu();
             }
         }
         captured_esc = false;
