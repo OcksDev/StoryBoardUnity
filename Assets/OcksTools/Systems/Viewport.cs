@@ -66,7 +66,7 @@ public class Viewport : MonoBehaviour
         MouseOffset = (c - oldmouseshung) * (1 / scalem);
 
         oldmouseshung = c;
-        if (InputManager.IsKey(KeyCode.Mouse1))
+        if (InputManager.IsKey(KeyCode.Mouse1, "Game"))
         {
             if (hasset)
             {

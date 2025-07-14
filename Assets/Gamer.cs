@@ -25,13 +25,15 @@ public class Gamer : MonoBehaviour
     {
         //StartCoroutine(gumgum());
         StartCoroutine(WaitToLoad());
+        ree = false;
+        UpdateUtilMenu();
+        gitmenu = false;
+        UpdateGitMenu();
     }
     public IEnumerator WaitToLoad()
     {
         yield return new WaitForSeconds(0.1f);
         LoadAll(CurrentBoard);
-        ree = false;
-        UpdateUtilMenu();
     }
 
     public bool captured_esc = false;
@@ -55,7 +57,7 @@ public class Gamer : MonoBehaviour
     {
 
         CanHover = true;
-        if (InputManager.IsKeyDown(KeyCode.Space, "Game") || (CurrentMouse==MouseState.Connecting && InputManager.IsKeyDown(KeyCode.Mouse2, "Game")))
+        if ((InputManager.IsKeyDown(KeyCode.Space, "Game") || (CurrentMouse==MouseState.Connecting && InputManager.IsKeyDown(KeyCode.Mouse2, "Game"))) && !inmenu)
         {
             var ee = things[0].transform.position;
             //ee.z = 0;
@@ -243,6 +245,19 @@ public class Gamer : MonoBehaviour
         Tags.refs["Util"].GetComponent<TextMeshProUGUI>().text = ree ?"<": ">";
         Tags.refs["Utils"].gameObject.SetActive(ree);
     }
+    
+
+    bool gitmenu = false;
+    public void ToggleGitMenu()
+    {
+        gitmenu = !gitmenu;
+        UpdateGitMenu();
+    }
+    public void UpdateGitMenu()
+    {
+        Tags.refs["GitMenu"].gameObject.SetActive(gitmenu);
+        Tags.refs["GitSure"].gameObject.SetActive(false);
+    }
 
 
 
@@ -316,7 +331,11 @@ public class Gamer : MonoBehaviour
     {
         if(!captured_esc && Input.GetKeyDown(KeyCode.Escape))
         {
-            if (inmenu)
+            if (gitmenu)
+            {
+                ToggleGitMenu();
+            }
+            else if(inmenu)
             {
                 CloseSwitcher();
             }
@@ -348,11 +367,37 @@ public class Gamer : MonoBehaviour
     }
 
 
+
+    public void SexAndSync()
+    {
+        SaveAll();
+        var rc = CommitAndSync();
+        Tags.refs["GitLast"].GetComponent<TextMeshProUGUI>().text = "Git Last: \n" + rc;
+    }
+    public void FuckAndShit()
+    {
+        SaveAll();
+        Tags.refs["GitSure"].gameObject.SetActive(false);
+        var rc = PanicButton();
+        Tags.refs["GitLast"].GetComponent<TextMeshProUGUI>().text = "Git Last: \n" + rc;
+        StartCoroutine(WaitToLoad());
+
+    }
+
     public string CommitAndSync()
     {
         Git.Command("C:\\Users\\milom\\AppData\\Roaming\\Ocks\\Storyboard", "add .");
         Git.Command("C:\\Users\\milom\\AppData\\Roaming\\Ocks\\Storyboard", $"commit -m \"{System.DateTime.Now.ToString("MM-dd-yy HH:mm:ss")}\"");
         return Git.Command("C:\\Users\\milom\\AppData\\Roaming\\Ocks\\Storyboard", $"push");
+    }
+    public string PanicButton()
+    {
+        Git.Command("C:\\Users\\milom\\AppData\\Roaming\\Ocks\\Storyboard", "restore .");
+        return Git.Command("C:\\Users\\milom\\AppData\\Roaming\\Ocks\\Storyboard", $"status");
+    }
+    public void RevealSure()
+    {
+        Tags.refs["GitSure"].gameObject.SetActive(true);
     }
 
 }
