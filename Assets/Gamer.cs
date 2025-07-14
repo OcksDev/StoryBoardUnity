@@ -30,6 +30,8 @@ public class Gamer : MonoBehaviour
     {
         yield return new WaitForSeconds(0.1f);
         LoadAll(CurrentBoard);
+        ree = false;
+        UpdateUtilMenu();
     }
 
     public bool captured_esc = false;
@@ -230,6 +232,22 @@ public class Gamer : MonoBehaviour
         }
         Tags.refs["EditorMenu"].SetActive(false);
     }
+    bool ree = false;
+    public void ToggleUtilMenu()
+    {
+        ree = !ree;
+        UpdateUtilMenu();
+    }
+    public void UpdateUtilMenu()
+    {
+        Tags.refs["Util"].GetComponent<TextMeshProUGUI>().text = ree ?"<": ">";
+        Tags.refs["Utils"].gameObject.SetActive(ree);
+    }
+
+
+
+
+
     [HideInInspector]
     public List<RaycastResult> rcl = new List<RaycastResult>();
     public void HoverDataCooler()
@@ -313,6 +331,10 @@ public class Gamer : MonoBehaviour
     public void OpenSwitcher()
     {
         inmenu = true;
+
+        ree = false;
+        UpdateUtilMenu();
+
         InputManager.SetLockLevel("Editor");
         Tags.refs["Switcher"].SetActive(true);
         Tags.refs["Switcher"].GetComponent<SwitcherMover>().selection = AvailableGraphs.IndexOf(CurrentBoard);
