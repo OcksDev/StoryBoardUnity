@@ -421,6 +421,19 @@ public class Gamer : MonoBehaviour
         Tags.refs["GitLast"].GetComponent<TextMeshProUGUI>().text = "Git Last: \n" + rc;
         StartCoroutine(WaitToLoad());
     }
+    public void YayAndPull()
+    {
+        Tags.refs["GitLoad"].gameObject.SetActive(true);
+        StartCoroutine(c());
+
+    }
+    public IEnumerator c()
+    {
+        yield return null;
+        var rc = Pull();
+        Tags.refs["GitLast"].GetComponent<TextMeshProUGUI>().text = "Git Last: \n" + rc;
+        StartCoroutine(WaitToLoad());
+    }
 
     public string CommitAndSync()
     {
@@ -431,7 +444,11 @@ public class Gamer : MonoBehaviour
     public string PanicButton()
     {
         Git.Command("C:\\Users\\milom\\AppData\\Roaming\\Ocks\\Storyboard", "restore .");
-        return Git.Command("C:\\Users\\milom\\AppData\\Roaming\\Ocks\\Storyboard", $"status");
+        return Git.Command("C:\\Users\\milom\\AppData\\Roaming\\Ocks\\Storyboard", $"pull");
+    }
+    public string Pull()
+    {
+        return Git.Command("C:\\Users\\milom\\AppData\\Roaming\\Ocks\\Storyboard", $"pull");
     }
     public void RevealSure()
     {
