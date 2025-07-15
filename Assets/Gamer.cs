@@ -25,7 +25,7 @@ public class Gamer : MonoBehaviour
     {
         //StartCoroutine(gumgum());
         StartCoroutine(WaitToLoad());
-        ree = false;
+        ree = true;
         UpdateUtilMenu();
         gitmenu = false;
         UpdateGitMenu();
@@ -385,6 +385,8 @@ public class Gamer : MonoBehaviour
         inmenu = false;
         InputManager.ResetLockLevel();
         Tags.refs["Switcher"].SetActive(false);
+        ree = true;
+        UpdateUtilMenu();
     }
 
 
@@ -413,6 +415,7 @@ public class Gamer : MonoBehaviour
     {
         yield return null;
         SaveAll();
+        SaveSystem.Instance.SaveGame();
         Tags.refs["GitSure"].gameObject.SetActive(false);
         var rc = PanicButton();
         Tags.refs["GitLast"].GetComponent<TextMeshProUGUI>().text = "Git Last: \n" + rc;
