@@ -20,6 +20,11 @@ public class NodeObject : MonoBehaviour
 
     public string Name = "";
     public string Desc = "";
+    public string NodeType = "";
+    /* NodeTypes: 
+     * Node
+     * Char
+     */
     public Color Color;
 
 
@@ -44,6 +49,7 @@ public class NodeObject : MonoBehaviour
             {"Scl", ""},
             {"Name", ""},
             {"Desc", ""},
+            {"Type", "Node"},
             {"Col", ""},
         };
     }
@@ -61,6 +67,7 @@ public class NodeObject : MonoBehaviour
             {"Scl", Scale.ToString()},
             {"Name", Name.ToString()},
             {"Desc", Desc.ToString()},
+            {"Type", NodeType},
             {"Col", ColorUtility.ToHtmlStringRGB(Color)},
         };
         foreach(var a in list)
@@ -82,6 +89,7 @@ public class NodeObject : MonoBehaviour
         Debug.Log(e["UUID"]);
         Name = e["Name"];
         Desc = e["Desc"];
+        NodeType = e["Type"];
         Color = Converter.StringToColor(e["Col"]);
         rt.anchoredPosition = Converter.StringToVector3(e["Pos"]);
         rt.sizeDelta = Converter.StringToVector3(e["Scl"]);
@@ -166,7 +174,7 @@ public class NodeObject : MonoBehaviour
 
         if (ww && dd && InputManager.IsKeyDown(KeyCode.Mouse2, "Game"))
         {
-            Gamer.Instance.OpenEditorMenu(UUID);
+            OpenMyEditor();
         }
 
 
@@ -281,7 +289,18 @@ public class NodeObject : MonoBehaviour
             }
         }
     }
-
+    public void OpenMyEditor()
+    {
+        switch (NodeType)
+        {
+            default:
+                Gamer.Instance.OpenEditorMenu(UUID);
+                break;
+            case "Char":
+                Gamer.Instance.OpenCharacterEditorMenu(UUID);
+                break;
+        }
+    }
     public void CompleteLineConnect()
     {
         var nerd = Gamer.Instance.myhomies[Gamer.Instance.connecting_uuid];

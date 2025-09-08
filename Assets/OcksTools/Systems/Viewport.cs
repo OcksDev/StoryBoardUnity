@@ -79,8 +79,9 @@ public class Viewport : MonoBehaviour
         {
             hasset = false;
         }
-
-        PosTarget += dir * Time.deltaTime * mult * Mathf.Lerp(1, 1 / scalem, 0.35f);
+        var ddd = dir * Time.deltaTime * mult * Mathf.Lerp(1, 1 / scalem, 0.35f);
+        MouseOffset -= ddd;
+        PosTarget += ddd;
         TheGamer.transform.localPosition = Vector3.Lerp(TheGamer.transform.localPosition, PosTarget, 10 * Time.deltaTime);
         //TheGamerSM.transform.localPosition = c/scalem;
         TheGamerScaler.localScale = Vector3.one * scalem;

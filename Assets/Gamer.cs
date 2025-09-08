@@ -54,28 +54,35 @@ public class Gamer : MonoBehaviour
     public string hov_uuid = "";
 
     public bool inmenu = false;
+    public void CreateNewNode(string type = "Node")
+    {
+        var ee = things[0].transform.position;
+        //ee.z = 0;
+        var zz = ee;
+
+        var e = Instantiate(things[1], ee, Quaternion.identity, things[0].transform).GetComponent<NodeObject>();
+        e.UUID = Tags.GenerateID();
+        e.NodeType = type;
+        e.rt.anchoredPosition = -Viewport.Instance.curpos;
+        if (CurrentMouse == MouseState.Connecting)
+        {
+            ee = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            ee.z = zz.z;
+            e.transform.position = ee;
+            e.Color = myhomies[connecting_uuid].Color;
+        }
+        myhomies.Add(e.UUID, e);
+        e.OpenMyEditor();
+    }
+
+
     private void Update()
     {
 
         CanHover = true;
         if ((InputManager.IsKeyDown(KeyCode.Space, "Game") || (CurrentMouse==MouseState.Connecting && InputManager.IsKeyDown(KeyCode.Mouse2, "Game"))) && !inmenu)
         {
-            var ee = things[0].transform.position;
-            //ee.z = 0;
-            var zz = ee;
-
-            var e = Instantiate(things[1], ee, Quaternion.identity, things[0].transform).GetComponent<NodeObject>();
-            e.UUID = Tags.GenerateID();
-            e.rt.anchoredPosition = - Viewport.Instance.curpos;
-            if (CurrentMouse == MouseState.Connecting)
-            {
-                ee = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                ee.z = zz.z;
-                e.transform.position = ee;
-                e.Color = myhomies[connecting_uuid].Color;
-            }
-            myhomies.Add(e.UUID, e);
-            OpenEditorMenu(e.UUID);
+            CreateNewNode();
         }
         if(CurrentMouse == MouseState.Connecting && !inmenu)
         {
@@ -235,6 +242,40 @@ public class Gamer : MonoBehaviour
         }
         Tags.refs["EditorMenu"].SetActive(false);
     }
+
+
+    public void OpenCharacterEditorMenu(string uuid)
+    {
+        inmenu = true;
+        InputManager.SetLockLevel("Editor");
+        nerd_uuid = uuid;
+        Tags.refs["EditorMenu_Character"].SetActive(true);
+        /*var aa = Tags.refs["EditorMenu"].GetComponent<EditorMenu>();
+        var c = myhomies[uuid];
+        aa.Title.text = c.Name;
+        aa.Description.text = c.Desc;
+        aa.ColorHex.text = ColorUtility.ToHtmlStringRGB(c.Color);*/
+    }
+
+
+    public void CloseCharacterEditorMenu(string uuid)
+    {
+        captured_esc = true;
+        inmenu = false;
+        InputManager.ResetLockLevel();
+        /*var aa = Tags.refs["EditorMenu"].GetComponent<EditorMenu>();
+        var c = myhomies[uuid];
+        c.Name = aa.Title.text;
+        c.Desc = aa.Description.text;
+        c.Color = Converter.StringToColor(aa.ColorHex.text);
+        c.UpdateDisplay();*/
+        Tags.refs["EditorMenu_Character"].SetActive(false);
+    }
+
+
+
+
+
     bool ree = false;
     public void ToggleUtilMenu()
     {
@@ -359,6 +400,10 @@ public class Gamer : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Alpha1))
             {
                 ToggleGitMenu();
+            }
+            else if(Input.GetKeyDown(KeyCode.Alpha2))
+            {
+                CreateNewNode("Char");
             }
         }
         else if (gitmenu && Input.GetKeyDown(KeyCode.Alpha1))
