@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using TMPro;
 using UnityEngine;
 
 public class Converter : MonoBehaviour
@@ -24,6 +25,15 @@ public class Converter : MonoBehaviour
     public static List<string> StringToList(string eee, string split = ", ")
     {
         return eee.Split(split).ToList();
+    }
+    public static Dictionary<string,string> ToStringDict<A,B>(Dictionary<A,B> banan)
+    {
+        var dd  = new Dictionary<string,string>();
+        foreach(var a in banan)
+        {
+            dd.Add(a.Key.ToString(), a.Value.ToString());
+        }
+        return dd;
     }
 
     public static string DictionaryToString(Dictionary<string, string> dic, string splitter = "<K>", string splitter2 = "<->")

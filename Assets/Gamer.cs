@@ -71,8 +71,20 @@ public class Gamer : MonoBehaviour
             e.transform.position = ee;
             e.Color = myhomies[connecting_uuid].Color;
         }
+
+        switch (type)
+        {
+            case "Char":
+                e.NodeData = new CharacterData();
+                break;
+        }
+
         myhomies.Add(e.UUID, e);
         e.OpenMyEditor();
+        if (CurrentMouse == MouseState.Connecting)
+        {
+            e.CompleteLineConnect();
+        }
     }
 
 

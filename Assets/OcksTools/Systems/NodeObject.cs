@@ -25,6 +25,7 @@ public class NodeObject : MonoBehaviour
      * Node
      * Char
      */
+    public SpecialNodeData NodeData = null;
     public Color Color;
 
 
@@ -51,6 +52,7 @@ public class NodeObject : MonoBehaviour
             {"Desc", ""},
             {"Type", "Node"},
             {"Col", ""},
+            {"ND", ""},
         };
     }
 
@@ -69,6 +71,7 @@ public class NodeObject : MonoBehaviour
             {"Desc", Desc.ToString()},
             {"Type", NodeType},
             {"Col", ColorUtility.ToHtmlStringRGB(Color)},
+            {"ND", NodeData!=null?NodeData.DataToString():""},
         };
         foreach(var a in list)
         {
@@ -95,6 +98,24 @@ public class NodeObject : MonoBehaviour
         rt.sizeDelta = Converter.StringToVector3(e["Scl"]);
         Connections = Converter.StringToList(e["Cons"]);
         if (Connections.Contains("")) Connections.Remove("");
+
+        if (e["ND"] == "")
+        {
+            NodeData = null;
+        }
+        else
+        {
+            switch (NodeType)
+            {
+                default:
+                    Debug.LogWarning("node data detected on node with no handling");
+                    break;
+                case "Char":
+                    NodeData = new CharacterData();
+                    NodeData.StringToData(e["ND"]);
+                    break;
+            }
+        }
     }
 
     public void UpdateConnectionLines()
@@ -318,4 +339,32 @@ public class NodeObject : MonoBehaviour
         selff.color = Color;
     }
 
+}
+
+
+public interface SpecialNodeData
+{
+    public string DataToString();
+    public void StringToData(string data);
+}
+public class CharacterData : SpecialNodeData
+{
+    public Dictionary<string, int> personalities = new Dictionary<string, int>();
+    public string DataToString()
+    {
+        Dictionary<string,string> mydata = new Dictionary<string,string>();
+        mydata.Add("persons", Converter.EscapedDictionaryToString(Converter.ToStringDict(personalities)));
+
+        return Converter.EscapedDictionaryToString(mydata);
+    }
+    public void StringToData(string data)
+    {
+        var mydata = Converter.EscapedStringToDictionary(data);
+        var d = Converter.EscapedStringToDictionary(mydata["persons"]);
+        var dd = new Dictionary<string,int>();
+        foreach(var a  in d)
+        {
+            dd.Add(a.Key, int.Parse(a.Value));
+        }
+    }
 }
