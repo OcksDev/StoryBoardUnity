@@ -169,12 +169,12 @@ public class NodeObject : MonoBehaviour
     }
 
 
-    private Vector2 int_size;
-    private Vector2 int_pos;
-    private Vector2 intit_pos;
-    private Vector2 intit_size;
-    bool int_was = false;
-    bool intit_was = false;
+    public Vector2 int_size;
+    public Vector2 int_pos;
+    public Vector2 intit_pos;
+    public Vector2 intit_size;
+    public bool int_was = false;
+    public bool intit_was = false;
     public void Update()
     {
         bool ww = Gamer.Instance.IsHovering(gameObject);
@@ -249,6 +249,8 @@ public class NodeObject : MonoBehaviour
             var eee = int_size;
             var pos = int_pos;
             int_was = true;
+            int ym = 1;
+            int xm = 1;
             switch (dragstate)
             {
                 case 0:
@@ -256,12 +258,15 @@ public class NodeObject : MonoBehaviour
                     eee.y -= Viewport.Instance.MouseOffset.y;
                     pos.x += Viewport.Instance.MouseOffset.x / 2;
                     pos.y += Viewport.Instance.MouseOffset.y / 2;
+                    ym = -1;
                     break;
                 case 1:
                     eee.x -= Viewport.Instance.MouseOffset.x;
                     eee.y -= Viewport.Instance.MouseOffset.y;
                     pos.x += Viewport.Instance.MouseOffset.x / 2;
                     pos.y += Viewport.Instance.MouseOffset.y / 2;
+                    ym = -1;
+                    xm = -1;
                     break;
                 case 2:
                     eee.x += Viewport.Instance.MouseOffset.x;
@@ -274,6 +279,7 @@ public class NodeObject : MonoBehaviour
                     eee.y += Viewport.Instance.MouseOffset.y;
                     pos.x += Viewport.Instance.MouseOffset.x / 2;
                     pos.y += Viewport.Instance.MouseOffset.y / 2;
+                    xm = -1;
                     break;
                 case 4:
                     pos.x += Viewport.Instance.MouseOffset.x;
@@ -299,13 +305,31 @@ public class NodeObject : MonoBehaviour
             {
                 if (dragstate == 4)
                 {
+
                     eee.x = Mathf.Round(eee.x / 50) * 50;
                     eee.y = Mathf.Round(eee.y / 50) * 50;
 
-                    pos.x = Mathf.Round(pos.x / 50) * 50;
-                    pos.y = Mathf.Round(pos.y / 50) * 50;
+                    pos.x = Mathf.Floor(pos.x / 50) * 50;
+                    pos.y = Mathf.Floor(pos.y / 50) * 50;
                     if ((eee.x % 100) != 0) pos.x += 25;
                     if ((eee.y % 100) != 0) pos.y += 25;
+                }
+                else
+                {
+                    eee.x = Mathf.Round(eee.x / 50) * 50;
+                    eee.y = Mathf.Round(eee.y / 50) * 50;
+                    Vector2 d = Vector2.zero;
+                    d.x = Mathf.Round(intit_size.x / 50) * 50;
+                    d.y = Mathf.Round(intit_size.y / 50) * 50;
+
+                    pos.x = Mathf.Floor(intit_pos.x / 50) * 50;
+                    pos.y = Mathf.Floor(intit_pos.y / 50) * 50;
+                    pos.x += ((eee.x - d.x)/2)*xm;
+                    pos.y += ((eee.y - d.y)/2)*ym;
+
+                    if ((intit_size.x % 100) != 0) pos.x += 25;
+                    if ((intit_size.y % 100) != 0) pos.y += 25;
+
                 }
 
 
