@@ -332,11 +332,29 @@ public class NodeObject : MonoBehaviour
         Gamer.Instance.CurrentMouse = Gamer.MouseState.DraggingWait;
         UpdateConnectionLines();
     }
-
+    Image ddd;
+    Image ddd1;
+    Image ddd2;
+    Image ddd3;
     public void UpdateDisplay()
     {
         titler.text = Name;
         selff.color = Color;
+        refs[4].SetActive(NodeType != "Node");
+        refs[5].SetActive(NodeType != "Node");
+        refs[6].SetActive(NodeType != "Node");
+        refs[7].SetActive(NodeType != "Node");
+        if(NodeType != "Node")
+        {
+            if(ddd == null) ddd = refs[4].GetComponent<Image>();
+            if(ddd1 == null) ddd1 = refs[5].GetComponent<Image>();
+            if(ddd2 == null) ddd2 = refs[6].GetComponent<Image>();
+            if(ddd3 == null) ddd3 = refs[7].GetComponent<Image>();
+            ddd.color = Gamer.Instance.NodeTypeColorDict[NodeType];
+            ddd1.color = Gamer.Instance.NodeTypeColorDict[NodeType];
+            ddd2.color = Gamer.Instance.NodeTypeColorDict[NodeType];
+            ddd3.color = Gamer.Instance.NodeTypeColorDict[NodeType];
+        }
     }
 
 }

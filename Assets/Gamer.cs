@@ -10,6 +10,8 @@ using System;
 public class Gamer : MonoBehaviour
 {
     public List<GameObject> things;
+    public List<TwoRef<string,Color>> NodeTypeColors = new List<TwoRef<string, Color>>();
+    public Dictionary<string,Color> NodeTypeColorDict = new Dictionary<string,Color>();
     public Dictionary<string,NodeObject> myhomies = new Dictionary<string, NodeObject>();
     public static List<string> AvailableGraphs = new List<string>();
     public MouseState CurrentMouse = MouseState.None;
@@ -29,6 +31,11 @@ public class Gamer : MonoBehaviour
         UpdateUtilMenu();
         gitmenu = false;
         UpdateGitMenu();
+
+        foreach(var a in NodeTypeColors)
+        {
+            NodeTypeColorDict.Add(a.a, a.b);
+        }
     }
     public IEnumerator WaitToLoad()
     {
@@ -512,4 +519,10 @@ public class Gamer : MonoBehaviour
         Tags.refs["GitSure"].gameObject.SetActive(true);
     }
 
+}
+
+[System.Serializable]
+public class TwoRef<A, B>
+{
+    public A a; public B b;
 }
