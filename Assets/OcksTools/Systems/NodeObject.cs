@@ -37,6 +37,8 @@ public class NodeObject : MonoBehaviour
             refs[i].SetActive(false);
         }
         UpdateDisplay();
+        int_size = rt.sizeDelta;
+        int_pos = rt.anchoredPosition;
     }
 
     public int dragstate = -1;
@@ -166,6 +168,13 @@ public class NodeObject : MonoBehaviour
         gm.transform.localScale = new Vector3(RandomFunctions.Dist(pos, otherpos) * 0.8f / Viewport.Instance.scalem, 1, 1);
     }
 
+
+    private Vector2 int_size;
+    private Vector2 int_pos;
+    private Vector2 intit_pos;
+    private Vector2 intit_size;
+    bool int_was = false;
+    bool intit_was = false;
     public void Update()
     {
         bool ww = Gamer.Instance.IsHovering(gameObject);
@@ -237,8 +246,9 @@ public class NodeObject : MonoBehaviour
         if (dragstate != -1)
         {
             Gamer.Instance.connecting_uuid = UUID;
-            var eee = rt.sizeDelta;
-            var pos = rt.anchoredPosition;
+            var eee = int_size;
+            var pos = int_pos;
+            int_was = true;
             switch (dragstate)
             {
                 case 0:
@@ -270,11 +280,52 @@ public class NodeObject : MonoBehaviour
                     pos.y += Viewport.Instance.MouseOffset.y;
                     break;
             }
+
+            if(!intit_was && Input.GetKey(KeyCode.LeftControl))
+            {
+                intit_size = int_size;
+                intit_pos = int_pos;
+                intit_was = true;
+            }
+            else if (intit_was && !Input.GetKey(KeyCode.LeftControl))
+            {
+                intit_was = false;
+            }
+
+
+            int_pos = pos;
+            int_size = eee;
+            if (Input.GetKey(KeyCode.LeftControl))
+            {
+                if (dragstate == 4)
+                {
+                    eee.x = Mathf.Round(eee.x / 50) * 50;
+                    eee.y = Mathf.Round(eee.y / 50) * 50;
+
+                    pos.x = Mathf.Round(pos.x / 50) * 50;
+                    pos.y = Mathf.Round(pos.y / 50) * 50;
+                    if ((eee.x % 100) != 0) pos.x += 25;
+                    if ((eee.y % 100) != 0) pos.y += 25;
+                }
+
+
+            }
+
+
             rt.sizeDelta = eee;
             rt.anchoredPosition = pos;
             UpdateConnectionLines();
         }
-
+        else
+        {
+            if (int_was)
+            {
+                intit_was = false;
+                int_was = false;
+                int_size = rt.sizeDelta;
+                int_pos = rt.anchoredPosition;
+            }
+        }
 
 
         if (ww || dragstate != -1)

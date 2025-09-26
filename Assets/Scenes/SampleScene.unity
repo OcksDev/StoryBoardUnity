@@ -1339,6 +1339,9 @@ MonoBehaviour:
   - {fileID: 6092406377358551662, guid: b0ee0146e67f5fc42b857241bc2b0532, type: 3}
   - {fileID: 27764481}
   - {fileID: 7461824399298026412, guid: cf88c2ecf85667943a48f72dd41c84d3, type: 3}
+  NodeTypeColors:
+  - a: Char
+    b: {r: 0, g: 1, b: 0.04815674, a: 1}
   CurrentMouse: 0
   hovvovov: {fileID: 329022479}
   hovvovov2: {fileID: 1039923274}
