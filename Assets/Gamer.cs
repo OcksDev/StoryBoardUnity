@@ -269,11 +269,11 @@ public class Gamer : MonoBehaviour
         InputManager.SetLockLevel("Editor");
         nerd_uuid = uuid;
         Tags.refs["EditorMenu_Character"].SetActive(true);
-        /*var aa = Tags.refs["EditorMenu"].GetComponent<EditorMenu>();
+        var aa = Tags.refs["EditorMenu_Character"].GetComponent<CharacterEditorMenu>();
         var c = myhomies[uuid];
         aa.Title.text = c.Name;
         aa.Description.text = c.Desc;
-        aa.ColorHex.text = ColorUtility.ToHtmlStringRGB(c.Color);*/
+        aa.ColorHex.text = ColorUtility.ToHtmlStringRGB(c.Color);
     }
 
 
@@ -282,12 +282,12 @@ public class Gamer : MonoBehaviour
         captured_esc = true;
         inmenu = false;
         InputManager.ResetLockLevel();
-        /*var aa = Tags.refs["EditorMenu"].GetComponent<EditorMenu>();
+        var aa = Tags.refs["EditorMenu_Character"].GetComponent<CharacterEditorMenu>();
         var c = myhomies[uuid];
         c.Name = aa.Title.text;
         c.Desc = aa.Description.text;
         c.Color = Converter.StringToColor(aa.ColorHex.text);
-        c.UpdateDisplay();*/
+        c.UpdateDisplay();
         Tags.refs["EditorMenu_Character"].SetActive(false);
     }
 

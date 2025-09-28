@@ -28,6 +28,10 @@ public class NodeObject : MonoBehaviour
     public SpecialNodeData NodeData = null;
     public Color Color;
 
+    public A GetMyData<A>() where A : SpecialNodeData
+    {
+        return (A)NodeData;
+    }
 
     private void Start()
     {
@@ -115,6 +119,7 @@ public class NodeObject : MonoBehaviour
                 case "Char":
                     NodeData = new CharacterData();
                     NodeData.StringToData(e["ND"]);
+                    //((CharacterData)NodeData).personalities.Add(new PersonalityRef<string, int>("HELLO WORLD LOL", 69));
                     break;
             }
         }
@@ -442,22 +447,43 @@ public interface SpecialNodeData
 }
 public class CharacterData : SpecialNodeData
 {
-    public Dictionary<string, int> personalities = new Dictionary<string, int>();
+    public List<PersonalityRef<string, int>> personalities = new List<PersonalityRef<string, int>>();
     public string DataToString()
     {
         Dictionary<string,string> mydata = new Dictionary<string,string>();
-        mydata.Add("persons", Converter.EscapedDictionaryToString(Converter.ToStringDict(personalities)));
+
+        var a = new List<string>();
+        foreach(var b in personalities)
+        {
+            a.Add(Converter.EscapedListToString(new List<string>() { b.a, b.b.ToString() }, "!!!"));
+        }
+
+        mydata.Add("persons", Converter.EscapedListToString(a));
 
         return Converter.EscapedDictionaryToString(mydata);
     }
     public void StringToData(string data)
     {
         var mydata = Converter.EscapedStringToDictionary(data);
-        var d = Converter.EscapedStringToDictionary(mydata["persons"]);
-        var dd = new Dictionary<string,int>();
-        foreach(var a  in d)
+        var d = Converter.EscapedStringToList(mydata["persons"]);
+        personalities.Clear();
+        foreach (var b in d)
         {
-            dd.Add(a.Key, int.Parse(a.Value));
+            if (b == "") continue;
+            var bb = Converter.EscapedStringToList(b, "!!!");
+            personalities.Add(new PersonalityRef<string, int>(bb[0], int.Parse(bb[1])));
         }
+
+    }
+}
+
+public class PersonalityRef<A,B>
+{
+    public A a;
+    public B b;
+    public PersonalityRef(A a, B b)
+    {
+        this.a = a;
+        this.b = b;
     }
 }
