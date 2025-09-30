@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 
-public class Converter : MonoBehaviour
+public static class Converter
 {
     public static int BoolToInt(bool a)
     {
@@ -141,6 +141,11 @@ public class Converter : MonoBehaviour
     {
         var s = StringToList(e.Substring(1, e.Length - 2));
         return new Vector3Int(int.Parse(s[0]), int.Parse(s[1]), int.Parse(s[2]));
+    }
+
+    public static string ColorToString(this Color cc)
+    {
+        return ColorUtility.ToHtmlStringRGB(cc);
     }
 
     public static Vector3 StringToVector3(string e)

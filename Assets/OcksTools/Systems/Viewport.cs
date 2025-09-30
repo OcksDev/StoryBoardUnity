@@ -56,7 +56,7 @@ public class Viewport : MonoBehaviour
         if (InputManager.IsKey("move_back", "Game")) dir -= Vector3.down;
         if (InputManager.IsKey("move_right", "Game")) dir -= Vector3.right;
         if (InputManager.IsKey("move_left", "Game")) dir -= Vector3.left;
-        if (Input.GetAxis("Mouse ScrollWheel") != 0f && InputManager.CheckAvailability("Game")) // forward
+        if (Input.GetAxis("Mouse ScrollWheel") != 0f && InputManager.CheckAvailability("Game") && !Gamer.Instance.inmenu) // forward
         {
             scalem = Mathf.Clamp(scalem + (Input.GetAxis("Mouse ScrollWheel") * scrolmult * (scalem)), 0.01f, 5f);
         }

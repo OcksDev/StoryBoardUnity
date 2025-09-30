@@ -57,11 +57,7 @@ public class FileSystem : MonoBehaviour
             s += $"{GameName}\n";
             WriteFile(FileLocations["OcksGames"], s, true);
         }
-        var pp = new bool[37];
-        for(int i = 0; i < pp.Length; i++)
-        {
-            pp[i] = UnityEngine.Random.Range(0, 2) == 0 ? true:false ;
-        }
+        WriteFile(FileLocations["Charpers"], "", false);
     }
     private void Start()
     {
@@ -84,6 +80,7 @@ public class FileSystem : MonoBehaviour
         {
             {"OcksGames",$"{OcksDirectry}\\Ocks_Games_Owned.txt"},
             {"OXFileTest",$"{GameDirectory}\\Testing.ox"},
+            {"Charpers",$"{GameDirectory}\\Character_Personalities.txt"},
             {"Lang",$"{GameDirectory}\\Language"},
         };
     }

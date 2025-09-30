@@ -21,7 +21,7 @@ public class Gamer : MonoBehaviour
     public string connecting_uuid = "";
     public GameObject FakeLine;
     public float mult = 1;
-
+    public List<string> Personalities = new List<string>();
 
     public void Start()
     {
@@ -36,6 +36,10 @@ public class Gamer : MonoBehaviour
         {
             NodeTypeColorDict.Add(a.a, a.b);
         }
+
+        Personalities = Converter.StringToList(FileSystem.Instance.ReadFile(FileSystem.Instance.FileLocations["Charpers"]), Environment.NewLine);
+        Personalities.Sort();
+
     }
     public IEnumerator WaitToLoad()
     {
@@ -173,6 +177,9 @@ public class Gamer : MonoBehaviour
         }
         SaveSystem.Instance.SetList("Objects", fins, CurrentBoard);
         SaveSystem.Instance.SaveDataToFile(CurrentBoard);
+
+        FileSystem.Instance.WriteFile(FileSystem.Instance.FileLocations["Charpers"],
+            Converter.ListToString(Personalities), true);
     }
     
     public void LoadAll(string dict)
@@ -274,6 +281,25 @@ public class Gamer : MonoBehaviour
         aa.Title.text = c.Name;
         aa.Description.text = c.Desc;
         aa.ColorHex.text = ColorUtility.ToHtmlStringRGB(c.Color);
+
+        ReloadPersonalityList(c);
+    }
+
+    public void ReloadPersonalityList(NodeObject c)
+    {
+        var a = Tags.refs["Personaliti"].GetComponentsInChildren<PersonalityOb>();
+        foreach (var b in a)
+        {
+            Destroy(b.gameObject);
+        }
+        var d = c.GetMyData<CharacterData>();
+        //d.personalities.Add(new PersonalityRef<string, int>("Test", 1));
+        foreach (var b in d.personalities)
+        {
+            var e = Instantiate(things[4], Tags.refs["Personaliti"].transform).GetComponent<PersonalityOb>();
+            e.characterData = d;
+            e.SetFromData(b);
+        }
     }
 
 

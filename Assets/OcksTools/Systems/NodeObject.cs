@@ -52,8 +52,8 @@ public class NodeObject : MonoBehaviour
         return new Dictionary<string, string>() {
             {"UUID", ""},
             {"Cons", ""},
-            {"Pos", ""},
-            {"Scl", ""},
+            {"Pos", "(0, 0, 0)"},
+            {"Scl", "(100, 100, 100)"},
             {"Name", ""},
             {"Desc", ""},
             {"Type", "Node"},
@@ -100,6 +100,7 @@ public class NodeObject : MonoBehaviour
         Desc = e["Desc"];
         NodeType = e["Type"];
         Color = Converter.StringToColor(e["Col"]);
+        Debug.Log("Try: " + e["Pos"]); 
         rt.anchoredPosition = Converter.StringToVector3(e["Pos"]);
         rt.sizeDelta = Converter.StringToVector3(e["Scl"]);
         Connections = Converter.StringToList(e["Cons"]);
