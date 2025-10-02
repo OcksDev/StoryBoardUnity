@@ -16,12 +16,18 @@ public class Gamer : MonoBehaviour
     public static List<string> AvailableGraphs = new List<string>();
     public MouseState CurrentMouse = MouseState.None;
     public GameObject hovvovov;
+    public GameObject hovvovova;
     public RectTransform hovvovov2;
+    public RectTransform hovvovova2;
     public string CurrentBoard = "";
     public string connecting_uuid = "";
     public GameObject FakeLine;
     public float mult = 1;
     public List<string> Personalities = new List<string>();
+
+
+
+    public List<Color32> color32s = new List<Color32>();
 
     public void Start()
     {
@@ -37,7 +43,11 @@ public class Gamer : MonoBehaviour
             NodeTypeColorDict.Add(a.a, a.b);
         }
 
-        Personalities = Converter.StringToList(FileSystem.Instance.ReadFile(FileSystem.Instance.FileLocations["Charpers"]), Environment.NewLine);
+        Personalities = Converter.StringToList(FileSystem.Instance.ReadFile(FileSystem.Instance.FileLocations["Charpers"]));
+        for(int i = 0; i < Personalities.Count; i++)
+        {
+            Personalities[i] = killme(Personalities[i]);
+        }
         Personalities.Sort();
 
     }
@@ -158,10 +168,51 @@ public class Gamer : MonoBehaviour
                 hovvovov.SetActive(false);
             }
 
+            if(c.NodeType == "Char")
+            {
+                hovvovova.SetActive(true);
+
+                hovvovova.transform.position = c.transform.position;
+
+                List<string> de = new List<string>();
+                var d = c.GetMyData<CharacterData>();
+                foreach(var a in d.personalities)
+                {
+                    de.Add($"<color=#{Converter.ColorToString(Gamer.Instance.color32s[a.b + 3])}>[{a.b}]</color> {a.a}");
+                }
+                if(de.Count < 1)
+                {
+                    hovvovova.SetActive(false);
+                }
+                else
+                {
+                    hovvovova2.GetComponent<TextMeshProUGUI>().text = Converter.ListToString(de, System.Environment.NewLine);
+                    hovvovova2.GetComponent<ContentSizeFitter>().SetLayoutVertical();
+                    var rt = hovvovova.GetComponent<RectTransform>();
+                    var fuck = rt.anchoredPosition;
+                    var zz = rt.sizeDelta;
+                    zz.y = hovvovova2.sizeDelta.y + (2 * 14f);
+                    rt.sizeDelta = zz;
+                    float ss = Mathf.Lerp(1, Viewport.Instance.scalem, 0.7f);
+                    fuck.x -= (c.GetComponent<RectTransform>().sizeDelta.x / 2) * Viewport.Instance.scalem;
+                    fuck.x -= (rt.sizeDelta.x / 2) * ss;
+                    fuck.x -= (16) * ss;
+                    rt.anchoredPosition = fuck;
+                    hovvovova.transform.localScale = Vector3.one * ss;
+                }
+
+                
+            }
+            else
+            {
+                hovvovova.SetActive(false);
+            }
+
         }
         else
         {
             hovvovov.SetActive(false);
+            hovvovova.SetActive(false);
         }
 
         hov_uuid = "";
@@ -268,11 +319,12 @@ public class Gamer : MonoBehaviour
         }
         Tags.refs["EditorMenu"].SetActive(false);
     }
-
-
+    public bool REWE = false;
     public void OpenCharacterEditorMenu(string uuid)
     {
+        REWE = true;
         inmenu = true;
+        Tags.refs["sugg_input"].GetComponent<TMP_InputField>().text = "";
         InputManager.SetLockLevel("Editor");
         nerd_uuid = uuid;
         Tags.refs["EditorMenu_Character"].SetActive(true);
@@ -300,11 +352,90 @@ public class Gamer : MonoBehaviour
             e.characterData = d;
             e.SetFromData(b);
         }
+        UpdatePerSuggList(c);
+    }
+    public List<string> taken_suggs = new List<string>();
+    public List<perssugg> spawned_suggs = new List<perssugg>();
+    public NodeObject suggin = null;
+    public void UpdatePerSuggList(NodeObject c)
+    {
+        suggin = c;
+        var d = c.GetMyData<CharacterData>();
+        taken_suggs.Clear();
+        foreach (var b in d.personalities)
+        {
+            taken_suggs.Add(b.a);
+        }
+        RefreshSuggList();
+    }
+
+    public void RefreshSuggList()
+    {
+        var d = suggin.GetMyData<CharacterData>();
+        foreach (var b in spawned_suggs)
+        {
+            Destroy(b.gameObject);
+        }
+        spawned_suggs.Clear();
+        foreach (var b in Personalities)
+        {
+            if (taken_suggs.Contains(b)) continue;
+            var e = Instantiate(things[5], Tags.refs["suggholder"].transform).GetComponent<perssugg>();
+            spawned_suggs.Add(e);
+            e.SetData(b);
+            e.AmCool("");
+        }
+    }
+    public void TextUpdateonSugglist()
+    {
+        var a = Tags.refs["sugg_input"].GetComponent<TMP_InputField>();
+        foreach(var b in spawned_suggs)
+        {
+            b.AmCool(a.text);
+        }
+        a.text = killme(a.text);
+    }
+    public void Autocompletw()
+    {
+        var a = Tags.refs["sugg_input"].GetComponent<TMP_InputField>();
+        string aa = a.text;
+        foreach(var b in spawned_suggs)
+        {
+            b.AmCool(a.text);
+            if (b.IsAv)
+            {
+                aa = b.mydata;
+                break;
+            }
+        }
+        a.text = killme(aa);
+    }
+
+    public static string killme(string a)
+    {
+        if(a.Length < 2) return a.ToUpper();
+        return a.ToUpper()[0].ToString() + a.Substring(1).ToLower();
+    }
+
+    public void SubmitNewPers()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape)) return;
+        if (Input.GetKeyDown(KeyCode.Mouse2)) return;
+        var dd = Tags.refs["sugg_input"].GetComponent<TMP_InputField>();
+        var ddd = dd.text;
+        if (ddd == "") return;
+        dd.text = "";
+        var d = suggin.GetMyData<CharacterData>();
+        d.personalities.Add(new PersonalityRef<string, int>(ddd, 0));
+        ReloadPersonalityList(suggin);
+        Tags.refs["FixSelect"].GetComponent<Button>().Select();
+        Tags.refs["sugg_input"].GetComponent<TMP_InputField>().Select();
     }
 
 
     public void CloseCharacterEditorMenu(string uuid)
     {
+        REWE = false;
         captured_esc = true;
         inmenu = false;
         InputManager.ResetLockLevel();
@@ -438,6 +569,10 @@ public class Gamer : MonoBehaviour
             if (!inmenu)
             {
                 ToggleUtilMenu();
+            }
+            else if (REWE)
+            {
+                Autocompletw();
             }
         }
         else if(ree && !inmenu)

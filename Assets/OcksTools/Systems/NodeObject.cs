@@ -183,7 +183,7 @@ public class NodeObject : MonoBehaviour
     public bool intit_was = false;
     public void Update()
     {
-        bool ww = Gamer.Instance.IsHovering(gameObject);
+        bool ww = !Gamer.Instance.inmenu && Gamer.Instance.IsHovering(gameObject);
         var ee = InputManager.IsKey(KeyCode.Mouse0, "Game");
         bool rr = false;
         var dd = dragstate == -1 && Gamer.Instance.CurrentMouse == Gamer.MouseState.None;
@@ -322,19 +322,24 @@ public class NodeObject : MonoBehaviour
                 }
                 else
                 {
-                    eee.x = Mathf.Round(eee.x / 50) * 50;
-                    eee.y = Mathf.Round(eee.y / 50) * 50;
                     Vector2 d = Vector2.zero;
+
+
                     d.x = Mathf.Round(intit_size.x / 50) * 50;
                     d.y = Mathf.Round(intit_size.y / 50) * 50;
+                   // var fpos = pos -= d / 2;
+                    eee.x = Mathf.Round(eee.x / 50) * 50;
+                    eee.y = Mathf.Round(eee.y / 50) * 50;
 
                     pos.x = Mathf.Floor(intit_pos.x / 50) * 50;
                     pos.y = Mathf.Floor(intit_pos.y / 50) * 50;
                     pos.x += ((eee.x - d.x)/2)*xm;
                     pos.y += ((eee.y - d.y)/2)*ym;
 
-                    if ((intit_size.x % 100) != 0) pos.x += 25;
-                    if ((intit_size.y % 100) != 0) pos.y += 25;
+                    //pos += d / 2;
+
+                    //if ((intit_size.x % 100) != 0) pos.x += 25;
+                    //if ((intit_size.y % 100) != 0) pos.y += 25;
 
                 }
 
