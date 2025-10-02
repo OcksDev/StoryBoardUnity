@@ -1,3 +1,4 @@
+using LibGit2Sharp;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -210,7 +211,19 @@ public class NodeObject : MonoBehaviour
 
         if (ww && dd && InputManager.IsKeyDown(KeyCode.Mouse2, "Game"))
         {
-            OpenMyEditor();
+            if(InputManager.IsKey(KeyCode.LeftControl, "Game"))
+            {
+                var node = Gamer.Instance.CreateNewNode(NodeType, true);
+                node.StringToItem(ItemToString());
+                node.UUID = Tags.GenerateID();
+                node.rt.anchoredPosition += new Vector2(0, rt.sizeDelta.y);
+                node.UpdateConnectionLines();
+                Gamer.Instance.myhomies.Add(node.UUID, node);
+            }
+            else
+            {
+                OpenMyEditor();
+            }
         }
 
 

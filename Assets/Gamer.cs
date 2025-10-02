@@ -75,7 +75,7 @@ public class Gamer : MonoBehaviour
     public string hov_uuid = "";
 
     public bool inmenu = false;
-    public void CreateNewNode(string type = "Node")
+    public NodeObject CreateNewNode(string type = "Node", bool flat = false)
     {
         var ee = things[0].transform.position;
         //ee.z = 0;
@@ -85,7 +85,7 @@ public class Gamer : MonoBehaviour
         e.UUID = Tags.GenerateID();
         e.NodeType = type;
         e.rt.anchoredPosition = -Viewport.Instance.curpos;
-        if (CurrentMouse == MouseState.Connecting)
+        if (!flat && CurrentMouse == MouseState.Connecting)
         {
             ee = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             ee.z = zz.z;
@@ -100,12 +100,16 @@ public class Gamer : MonoBehaviour
                 break;
         }
 
-        myhomies.Add(e.UUID, e);
-        e.OpenMyEditor();
-        if (CurrentMouse == MouseState.Connecting)
+        if (!flat)
         {
-            e.CompleteLineConnect();
+            myhomies.Add(e.UUID, e);
+            e.OpenMyEditor();
+            if (CurrentMouse == MouseState.Connecting)
+            {
+                e.CompleteLineConnect();
+            }
         }
+        return e;
     }
 
 
