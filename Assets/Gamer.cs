@@ -43,12 +43,6 @@ public class Gamer : MonoBehaviour
             NodeTypeColorDict.Add(a.a, a.b);
         }
 
-        Personalities = Converter.StringToList(FileSystem.Instance.ReadFile(FileSystem.Instance.FileLocations["Charpers"]));
-        for(int i = 0; i < Personalities.Count; i++)
-        {
-            Personalities[i] = killme(Personalities[i]);
-        }
-        Personalities.Sort();
 
     }
     public IEnumerator WaitToLoad()
@@ -253,6 +247,14 @@ public class Gamer : MonoBehaviour
         CurrentBoard = dict;
         FileSystem.Instance.AssembleFilePaths();
         var fp = SaveSystem.Instance.DictNameToFilePath(dict);
+
+        Personalities = Converter.StringToList(FileSystem.Instance.ReadFile(FileSystem.Instance.FileLocations["Charpers"]));
+        for (int i = 0; i < Personalities.Count; i++)
+        {
+            Personalities[i] = killme(Personalities[i]);
+        }
+        Personalities.Sort();
+
 
         var text = File.ReadAllText(fp);
         text = text.Substring("Objects: ".Length);
