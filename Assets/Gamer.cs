@@ -1,18 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.IO;
 using System.Threading;
-using UnityEngine.EventSystems;
 using TMPro;
+using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using System;
 public class Gamer : MonoBehaviour
 {
     public List<GameObject> things;
-    public List<TwoRef<string,Color>> NodeTypeColors = new List<TwoRef<string, Color>>();
-    public Dictionary<string,Color> NodeTypeColorDict = new Dictionary<string,Color>();
-    public Dictionary<string,NodeObject> myhomies = new Dictionary<string, NodeObject>();
+    public List<TwoRef<string, Color>> NodeTypeColors = new List<TwoRef<string, Color>>();
+    public Dictionary<string, Color> NodeTypeColorDict = new Dictionary<string, Color>();
+    public Dictionary<string, NodeObject> myhomies = new Dictionary<string, NodeObject>();
     public static List<string> AvailableGraphs = new List<string>();
     public MouseState CurrentMouse = MouseState.None;
     public GameObject hovvovov;
@@ -38,7 +37,7 @@ public class Gamer : MonoBehaviour
         gitmenu = false;
         UpdateGitMenu();
 
-        foreach(var a in NodeTypeColors)
+        foreach (var a in NodeTypeColors)
         {
             NodeTypeColorDict.Add(a.a, a.b);
         }
@@ -54,7 +53,7 @@ public class Gamer : MonoBehaviour
 
     public bool captured_esc = false;
 
-    bool CanHover = false;
+    private bool CanHover = false;
     public static Gamer Instance;
     private void Awake()
     {
@@ -111,20 +110,20 @@ public class Gamer : MonoBehaviour
     {
 
         CanHover = true;
-        if ((InputManager.IsKeyDown(KeyCode.Space, "Game") || (CurrentMouse==MouseState.Connecting && InputManager.IsKeyDown(KeyCode.Mouse2, "Game"))) && !inmenu)
+        if ((InputManager.IsKeyDown(KeyCode.Space, "Game") || (CurrentMouse == MouseState.Connecting && InputManager.IsKeyDown(KeyCode.Mouse2, "Game"))) && !inmenu)
         {
             CreateNewNode();
         }
-        if(CurrentMouse == MouseState.Connecting && !inmenu)
+        if (CurrentMouse == MouseState.Connecting && !inmenu)
         {
             var e = myhomies[connecting_uuid];
             var d = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             d.z = e.transform.position.z;
             NodeObject.LineAllign(FakeLine, e.transform.position, d);
         }
-        if(CurrentMouse == MouseState.DraggingWait)
-        { 
-            if(!Input.GetKey(KeyCode.Mouse0)) CurrentMouse = MouseState.None;
+        if (CurrentMouse == MouseState.DraggingWait)
+        {
+            if (!Input.GetKey(KeyCode.Mouse0)) CurrentMouse = MouseState.None;
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -139,10 +138,10 @@ public class Gamer : MonoBehaviour
         }
         if (inmenu) hov_uuid = "";
 
-        if(hov_uuid != "")
+        if (hov_uuid != "")
         {
             var c = myhomies[hov_uuid];
-            if(c.Desc != "")
+            if (c.Desc != "")
             {
                 hovvovov.SetActive(true);
 
@@ -166,7 +165,7 @@ public class Gamer : MonoBehaviour
                 hovvovov.SetActive(false);
             }
 
-            if(c.NodeType == "Char")
+            if (c.NodeType == "Char")
             {
                 hovvovova.SetActive(true);
 
@@ -174,11 +173,11 @@ public class Gamer : MonoBehaviour
 
                 List<string> de = new List<string>();
                 var d = c.GetMyData<CharacterData>();
-                foreach(var a in d.personalities)
+                foreach (var a in d.personalities)
                 {
                     de.Add($"<color=#{Converter.ColorToString(Gamer.Instance.color32s[a.b + 3])}>[{a.b}]</color> {a.a}");
                 }
-                if(de.Count < 1)
+                if (de.Count < 1)
                 {
                     hovvovova.SetActive(false);
                 }
@@ -199,7 +198,7 @@ public class Gamer : MonoBehaviour
                     hovvovova.transform.localScale = Vector3.one * ss;
                 }
 
-                
+
             }
             else
             {
@@ -220,7 +219,7 @@ public class Gamer : MonoBehaviour
     {
         //return;
         List<string> fins = new List<string>();
-        foreach(var a in myhomies)
+        foreach (var a in myhomies)
         {
             fins.Add(a.Value.ItemToString());
         }
@@ -230,14 +229,14 @@ public class Gamer : MonoBehaviour
         FileSystem.Instance.WriteFile(FileSystem.Instance.FileLocations["Charpers"],
             Converter.ListToString(Personalities), true);
     }
-    
+
     public void LoadAll(string dict)
     {
-        foreach(var a in myhomies)
+        foreach (var a in myhomies)
         {
-            foreach(var b in a.Value.ConnectionLines)
+            foreach (var b in a.Value.ConnectionLines)
             {
-                if(b.Value!=null) Destroy(b.Value);
+                if (b.Value != null) Destroy(b.Value);
             }
             Destroy(a.Value.gameObject);
         }
@@ -294,6 +293,7 @@ public class Gamer : MonoBehaviour
         Connecting,
         Dragging,
         DraggingWait,
+        Multiselecting,
     }
     public string nerd_uuid = "";
     public void OpenEditorMenu(string uuid)
@@ -319,7 +319,7 @@ public class Gamer : MonoBehaviour
         c.Desc = aa.Description.text;
         c.Color = Converter.StringToColor(aa.ColorHex.text);
         c.UpdateDisplay();
-        if(CurrentMouse == MouseState.Connecting)
+        if (CurrentMouse == MouseState.Connecting)
         {
             c.CompleteLineConnect();
         }
@@ -395,7 +395,7 @@ public class Gamer : MonoBehaviour
     public void TextUpdateonSugglist()
     {
         var a = Tags.refs["sugg_input"].GetComponent<TMP_InputField>();
-        foreach(var b in spawned_suggs)
+        foreach (var b in spawned_suggs)
         {
             b.AmCool(a.text);
         }
@@ -405,7 +405,7 @@ public class Gamer : MonoBehaviour
     {
         var a = Tags.refs["sugg_input"].GetComponent<TMP_InputField>();
         string aa = a.text;
-        foreach(var b in spawned_suggs)
+        foreach (var b in spawned_suggs)
         {
             b.AmCool(a.text);
             if (b.IsAv)
@@ -419,7 +419,7 @@ public class Gamer : MonoBehaviour
 
     public static string killme(string a)
     {
-        if(a.Length < 2) return a.ToUpper();
+        if (a.Length < 2) return a.ToUpper();
         return a.ToUpper()[0].ToString() + a.Substring(1).ToLower();
     }
 
@@ -458,7 +458,7 @@ public class Gamer : MonoBehaviour
 
 
 
-    bool ree = false;
+    private bool ree = false;
     public void ToggleUtilMenu()
     {
         ree = !ree;
@@ -466,12 +466,12 @@ public class Gamer : MonoBehaviour
     }
     public void UpdateUtilMenu()
     {
-        Tags.refs["Util"].GetComponent<TextMeshProUGUI>().text = ree ?"<": ">";
+        Tags.refs["Util"].GetComponent<TextMeshProUGUI>().text = ree ? "<" : ">";
         Tags.refs["Utils"].gameObject.SetActive(ree);
     }
-    
 
-    bool gitmenu = false;
+
+    private bool gitmenu = false;
     public void ToggleGitMenu()
     {
         gitmenu = !gitmenu;
@@ -479,6 +479,7 @@ public class Gamer : MonoBehaviour
     }
     public void UpdateGitMenu()
     {
+        ExitMultiSelect();
         inmenu = gitmenu;
         Tags.refs["GitMenu"].gameObject.SetActive(gitmenu);
         Tags.refs["GitSure"].gameObject.SetActive(false);
@@ -551,16 +552,21 @@ public class Gamer : MonoBehaviour
         Debug.Log("4" + Git.Command("C:\\Users\\milom\\AppData\\Roaming\\Ocks\\Storyboard", "status"));*/
     }
 
+    public bool captured_left = false;
 
     private void LateUpdate()
     {
-        if(!captured_esc && Input.GetKeyDown(KeyCode.Escape))
+        if (!captured_esc && Input.GetKeyDown(KeyCode.Escape))
         {
-            if (gitmenu)
+            if (has_dragged)
+            {
+                ExitMultiSelect();
+            }
+            else if (gitmenu)
             {
                 ToggleGitMenu();
             }
-            else if(inmenu)
+            else if (inmenu)
             {
                 CloseSwitcher();
             }
@@ -569,8 +575,8 @@ public class Gamer : MonoBehaviour
                 OpenSwitcher();
             }
         }
-        
-        if(Input.GetKeyDown(KeyCode.Tab))
+
+        if (Input.GetKeyDown(KeyCode.Tab))
         {
             if (!inmenu)
             {
@@ -581,13 +587,13 @@ public class Gamer : MonoBehaviour
                 Autocompletw();
             }
         }
-        else if(ree && !inmenu)
+        else if (ree && !inmenu)
         {
             if (Input.GetKeyDown(KeyCode.Alpha1))
             {
                 ToggleGitMenu();
             }
-            else if(Input.GetKeyDown(KeyCode.Alpha2))
+            else if (Input.GetKeyDown(KeyCode.Alpha2))
             {
                 CreateNewNode("Char");
             }
@@ -596,13 +602,97 @@ public class Gamer : MonoBehaviour
         {
             SexAndSync();
         }
+
+        if (!captured_left && !inmenu && InputManager.IsKey(KeyCode.Mouse0, "Game") && CurrentMouse != MouseState.Multiselecting)
+        {
+            StartDragSelect();
+        }
+        else if (CurrentMouse == MouseState.Multiselecting && !InputManager.IsKey(KeyCode.Mouse0, "Game"))
+        {
+            EndDragSelect();
+        }
+
+        if (CurrentMouse == MouseState.Multiselecting)
+        {
+            var c = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            c.z = 0;
+            drag_endp = c;
+            var x = Vector3.Lerp(Tags.refs["SelectionStart"].transform.position, drag_endp, 0.5f);
+            Vector2 scale = new Vector2(Mathf.Abs(drag_endp.x - Tags.refs["SelectionStart"].transform.position.x), Mathf.Abs(drag_endp.y - Tags.refs["SelectionStart"].transform.position.y));
+            x.z = Tags.refs["SmallParent"].transform.position.z;
+            Tags.refs["Selection"].transform.position = x;
+            drag_rect.sizeDelta = scale * 80 / Viewport.Instance.scalem;
+        }
+
+
         captured_esc = false;
+        captured_left = false;
     }
+    public List<string> dragging_ids = new List<string>();
+    public Vector3 drag_startp = Vector3.zero;
+    public Vector3 drag_endp = Vector3.zero;
+    public RectTransform drag_rect;
+    public bool has_dragged = false;
+    public void StartDragSelect()
+    {
+        ExitMultiSelect();
+        dragging_ids.Clear();
+        CurrentMouse = MouseState.Multiselecting;
+        drag_rect = Tags.refs["Selection"].GetComponent<RectTransform>();
+        var c = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        c.z = 0;
+        //c = Vector3.Lerp(c - Viewport.Instance.curposworld, Viewport.Instance.curposworld + c, 0.5f);
+        Tags.refs["Selection"].transform.position = c;
+        Tags.refs["SelectionStart"].transform.position = c;
+        drag_endp = c;
+        Tags.refs["Selection"].SetActive(true);
+        Debug.Log("Started Drag!");
+        has_dragged = true;
+    }
+    public void ExitMultiSelect()
+    {
+        has_dragged = false;
+        Tags.refs["SelectionBG"].SetActive(false);
+    }
+    public void EndDragSelect()
+    {
+        CurrentMouse = MouseState.None;
+        Tags.refs["Selection"].SetActive(false);
+        Debug.Log("Ended Drag!");
+        Tags.refs["SelectionBG"].SetActive(true);
+        UpdateSelectionAreaToMatchSelection();
+    }
+    public void UpdateSelectionAreaToMatchSelection()
+    {
+        float minx = 0;
+        float miny = 0;
+        float maxx = 0;
+        float maxy = 0;
+        bool first = true;
+        foreach (var a in dragging_ids)
+        {
+            var b = myhomies[a];
+            if (first || b.rt.anchoredPosition.x - b.rt.sizeDelta.x / 2 < minx) minx = b.rt.anchoredPosition.x - b.rt.sizeDelta.x / 2;
+            if (first || b.rt.anchoredPosition.x + b.rt.sizeDelta.x / 2 > maxx) maxx = b.rt.anchoredPosition.x + b.rt.sizeDelta.x / 2;
+            if (first || b.rt.anchoredPosition.y - b.rt.sizeDelta.y / 2 < miny) miny = b.rt.anchoredPosition.y - b.rt.sizeDelta.y / 2;
+            if (first || b.rt.anchoredPosition.y + b.rt.sizeDelta.y / 2 > maxy) maxy = b.rt.anchoredPosition.y + b.rt.sizeDelta.y / 2;
+            first = false;
+        }
+        var x = Vector3.Lerp(new Vector3(minx, miny, Tags.refs["SmallParent"].transform.position.z), new Vector3(maxx, maxy, Tags.refs["SmallParent"].transform.position.z), 0.5f);
+        Tags.refs["SelectionBG"].GetComponent<RectTransform>().anchoredPosition = x;
+        Tags.refs["SelectionBG"].GetComponent<RectTransform>().sizeDelta = new Vector2(Mathf.Abs(maxx - minx), Mathf.Abs(maxy - miny));
+    }
+
+    public void GenericMenuOpen()
+    {
+        ExitMultiSelect();
+        inmenu = true;
+    }
+
 
     public void OpenSwitcher()
     {
-        inmenu = true;
-
+        GenericMenuOpen();
         ree = false;
         UpdateUtilMenu();
 

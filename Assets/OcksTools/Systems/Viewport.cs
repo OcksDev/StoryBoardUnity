@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Viewport : MonoBehaviour
@@ -26,11 +25,13 @@ public class Viewport : MonoBehaviour
 
     public Vector3 oldmouseshung = Vector3.zero;
     public Vector3 curpos = Vector3.zero;
-    bool hasset = false;
+    public Vector3 curposworld = Vector3.zero;
+    private bool hasset = false;
     public Vector3 MouseOffset = Vector3.zero;
-
-
-    float timer = 0;
+    public Vector3 ViewportOffset = Vector3.zero;
+    public Vector3 ViewportWorldOffset = Vector3.zero;
+    private Vector3 oldpos = Vector3.zero;
+    private float timer = 0;
     private void OnApplicationFocus(bool focus)
     {
         StartCoroutine(waitsex());
@@ -44,9 +45,9 @@ public class Viewport : MonoBehaviour
         MouseOffset = Vector3.zero;
         oldmouseshung = c;
     }
-    void Update()
+    private void Update()
     {
-        if(timer > 0)
+        if (timer > 0)
         {
             timer -= Time.deltaTime;
             return;
@@ -82,9 +83,14 @@ public class Viewport : MonoBehaviour
         var ddd = dir * Time.deltaTime * mult * Mathf.Lerp(1, 1 / scalem, 0.35f);
         MouseOffset -= ddd;
         PosTarget += ddd;
+        ViewportOffset = ddd;
         TheGamer.transform.localPosition = Vector3.Lerp(TheGamer.transform.localPosition, PosTarget, 10 * Time.deltaTime);
         //TheGamerSM.transform.localPosition = c/scalem;
         TheGamerScaler.localScale = Vector3.one * scalem;
         curpos = TheGamer.transform.localPosition;
+        curposworld = Camera.main.ScreenToWorldPoint(TheGamer.transform.position);
+        curposworld.z = 0;
+        ViewportWorldOffset = curposworld - oldpos;
+        oldpos = curposworld;
     }
 }

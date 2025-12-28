@@ -1,5 +1,3 @@
-using LibGit2Sharp;
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -11,9 +9,9 @@ public class NodeObject : MonoBehaviour
     public List<string> Connections = new List<string>();
     public Vector3 Position;
     public Vector3 Scale;
-    public List<GameObject> refs = new List<GameObject> ();
-    public Dictionary<string,GameObject> ConnectionLines = new Dictionary<string, GameObject>();
-    bool washov = false;
+    public List<GameObject> refs = new List<GameObject>();
+    public Dictionary<string, GameObject> ConnectionLines = new Dictionary<string, GameObject>();
+    private bool washov = false;
     public RectTransform rt;
 
     public TextMeshProUGUI titler;
@@ -48,7 +46,7 @@ public class NodeObject : MonoBehaviour
 
     public int dragstate = -1;
 
-    public Dictionary<string,string> GetBase()
+    public Dictionary<string, string> GetBase()
     {
         return new Dictionary<string, string>() {
             {"UUID", ""},
@@ -69,7 +67,7 @@ public class NodeObject : MonoBehaviour
         Position = rt.anchoredPosition;
         Scale = rt.sizeDelta;
         var cd = GetBase();
-        Dictionary<string,string> list = new Dictionary<string,string>() {
+        Dictionary<string, string> list = new Dictionary<string, string>() {
             {"UUID", UUID },
             {"Cons", Converter.ListToString(Connections)},
             {"Pos", Position.ToString()},
@@ -80,18 +78,18 @@ public class NodeObject : MonoBehaviour
             {"Col", ColorUtility.ToHtmlStringRGB(Color)},
             {"ND", NodeData!=null?NodeData.DataToString():""},
         };
-        foreach(var a in list)
+        foreach (var a in list)
         {
             cd[a.Key] = a.Value;
         }
         return Converter.EscapedDictionaryToString(cd);
     }
-    
+
     public void StringToItem(string ee)
     {
         var e = GetBase();
         var wank = Converter.EscapedStringToDictionary(ee);
-        foreach(var a in wank)
+        foreach (var a in wank)
         {
             e[a.Key] = a.Value;
         }
@@ -101,7 +99,7 @@ public class NodeObject : MonoBehaviour
         Desc = e["Desc"];
         NodeType = e["Type"];
         Color = Converter.StringToColor(e["Col"]);
-        Debug.Log("Try: " + e["Pos"]); 
+        Debug.Log("Try: " + e["Pos"]);
         rt.anchoredPosition = Converter.StringToVector3(e["Pos"]);
         rt.sizeDelta = Converter.StringToVector3(e["Scl"]);
         Connections = Converter.StringToList(e["Cons"]);
@@ -130,7 +128,7 @@ public class NodeObject : MonoBehaviour
     public void UpdateConnectionLines()
     {
         List<string> aa = new List<string>();
-        foreach(var a in Connections)
+        foreach (var a in Connections)
         {
             if (!aa.Contains(a))
             {
@@ -148,7 +146,7 @@ public class NodeObject : MonoBehaviour
                 }
             }
         }
-        if(aa.Contains(UUID)) aa.Remove(UUID);
+        if (aa.Contains(UUID)) aa.Remove(UUID);
         Connections = aa;
         foreach (var conn in Connections)
         {
@@ -184,18 +182,39 @@ public class NodeObject : MonoBehaviour
     public bool intit_was = false;
     public void Update()
     {
+        if (Gamer.Instance.CurrentMouse == Gamer.MouseState.Multiselecting)
+        {
+            if (IsBoxColliding(rt, Gamer.Instance.drag_rect))
+            {
+                if (!Gamer.Instance.dragging_ids.Contains(UUID))
+                {
+                    Gamer.Instance.dragging_ids.Add(UUID);
+                }
+            }
+            else if (Gamer.Instance.dragging_ids.Contains(UUID))
+            {
+                {
+                    Gamer.Instance.dragging_ids.Add(UUID);
+                }
+            }
+
+            return;
+        }
+
+
+
         bool ww = !Gamer.Instance.inmenu && Gamer.Instance.IsHovering(gameObject);
         var ee = InputManager.IsKey(KeyCode.Mouse0, "Game");
         bool rr = false;
         var dd = dragstate == -1 && Gamer.Instance.CurrentMouse == Gamer.MouseState.None;
         if (washov || ww)
         {
-            for(int i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++)
             {
                 bool smex = Gamer.Instance.IsHovering(refs[i]);
                 if (smex)
                 {
-                    if(ee && dd) dragstate = i;
+                    if (ee && dd) dragstate = i;
                     ww = true;
                     rr = true;
                     break;
@@ -211,7 +230,7 @@ public class NodeObject : MonoBehaviour
 
         if (ww && dd && InputManager.IsKeyDown(KeyCode.Mouse2, "Game"))
         {
-            if(InputManager.IsKey(KeyCode.LeftControl, "Game"))
+            if (InputManager.IsKey(KeyCode.LeftControl, "Game"))
             {
                 var node = Gamer.Instance.CreateNewNode(NodeType, true);
                 node.StringToItem(ItemToString());
@@ -233,38 +252,41 @@ public class NodeObject : MonoBehaviour
             Gamer.Instance.connecting_uuid = UUID;
             Gamer.Instance.FakeLine = Instantiate(Gamer.Instance.things[3], transform.position, transform.rotation, Gamer.Instance.things[2].transform);
         }
-        else if (ww && Gamer.Instance.CurrentMouse == Gamer.MouseState.Connecting && (InputManager.IsKeyDown(KeyCode.Q, "Game")|| InputManager.IsKeyDown(KeyCode.Mouse0, "Game")) && Gamer.Instance.connecting_uuid != UUID)
+        else if (ww && Gamer.Instance.CurrentMouse == Gamer.MouseState.Connecting && (InputManager.IsKeyDown(KeyCode.Q, "Game") || InputManager.IsKeyDown(KeyCode.Mouse0, "Game")) && Gamer.Instance.connecting_uuid != UUID)
         {
             CompleteLineConnect();
         }
 
-        if(ww && InputManager.IsKeyDown(KeyCode.Backspace, "Game"))
+        if (ww && InputManager.IsKeyDown(KeyCode.Backspace, "Game"))
         {
-            foreach (var a in Connections)
+            DeleteMe();
+            if (Gamer.Instance.has_dragged)
             {
-                if(!Gamer.Instance.myhomies.ContainsKey(a)) { continue; }
-                var aa = Gamer.Instance.myhomies[a];
-                aa.Connections.Remove(a);
-                Destroy(ConnectionLines[aa.UUID]);
-                aa.UpdateConnectionLines();
-            }
+                foreach (var a in Gamer.Instance.dragging_ids)
+                {
+                    if (a == UUID) continue;
+                    try
+                    {
+                        var node = Gamer.Instance.myhomies[a];
+                        node.DeleteMe();
+                    }
+                    catch
+                    {
 
-            if(Gamer.Instance.connecting_uuid == UUID)
-            {
-                Gamer.Instance.connecting_uuid = "";
-                Gamer.Instance.CurrentMouse = Gamer.MouseState.None;
-                Destroy(Gamer.Instance.FakeLine);
+                    }
+                }
+                Gamer.Instance.ExitMultiSelect();
             }
-            Gamer.Instance.myhomies.Remove(UUID);
-            Destroy(gameObject);
-            return;
         }
 
 
 
         if (dragstate != -1)
         {
+            if (Gamer.Instance.has_dragged && !Gamer.Instance.dragging_ids.Contains(UUID))
+                Gamer.Instance.ExitMultiSelect();
             Gamer.Instance.connecting_uuid = UUID;
+            Gamer.Instance.captured_left = true;
             var eee = int_size;
             var pos = int_pos;
             int_was = true;
@@ -303,10 +325,25 @@ public class NodeObject : MonoBehaviour
                 case 4:
                     pos.x += Viewport.Instance.MouseOffset.x;
                     pos.y += Viewport.Instance.MouseOffset.y;
+                    if (Gamer.Instance.has_dragged)
+                    {
+                        foreach (var a in Gamer.Instance.dragging_ids)
+                        {
+                            if (a == UUID) continue;
+                            var node = Gamer.Instance.myhomies[a];
+                            var psex = node.rt.anchoredPosition;
+                            psex.x += Viewport.Instance.MouseOffset.x;
+                            psex.y += Viewport.Instance.MouseOffset.y;
+                            node.rt.anchoredPosition = psex;
+                            node.int_pos = psex;
+                            node.UpdateConnectionLines();
+                        }
+                        Gamer.Instance.UpdateSelectionAreaToMatchSelection();
+                    }
                     break;
             }
 
-            if(!intit_was && Input.GetKey(KeyCode.LeftControl))
+            if (!intit_was && Input.GetKey(KeyCode.LeftControl))
             {
                 intit_size = int_size;
                 intit_pos = int_pos;
@@ -320,7 +357,7 @@ public class NodeObject : MonoBehaviour
 
             int_pos = pos;
             int_size = eee;
-            if (Input.GetKey(KeyCode.LeftControl))
+            if (Input.GetKey(KeyCode.LeftControl) && !Gamer.Instance.has_dragged)
             {
                 if (dragstate == 4)
                 {
@@ -340,14 +377,14 @@ public class NodeObject : MonoBehaviour
 
                     d.x = Mathf.Round(intit_size.x / 50) * 50;
                     d.y = Mathf.Round(intit_size.y / 50) * 50;
-                   // var fpos = pos -= d / 2;
+                    // var fpos = pos -= d / 2;
                     eee.x = Mathf.Round(eee.x / 50) * 50;
                     eee.y = Mathf.Round(eee.y / 50) * 50;
 
                     pos.x = Mathf.Floor(intit_pos.x / 50) * 50;
                     pos.y = Mathf.Floor(intit_pos.y / 50) * 50;
-                    pos.x += ((eee.x - d.x)/2)*xm;
-                    pos.y += ((eee.y - d.y)/2)*ym;
+                    pos.x += ((eee.x - d.x) / 2) * xm;
+                    pos.y += ((eee.y - d.y) / 2) * ym;
 
                     //pos += d / 2;
 
@@ -378,15 +415,18 @@ public class NodeObject : MonoBehaviour
 
         if (ww || dragstate != -1)
         {
-            Gamer.Instance.hov_uuid = UUID;
-            if(!washov)
+            if (Gamer.Instance.has_dragged && !Gamer.Instance.dragging_ids.Contains(UUID))
             {
-                for (int i = 0; i < 4; i++)
+                Gamer.Instance.hov_uuid = UUID;
+                if (!washov)
                 {
-                    refs[i].SetActive(true);
+                    for (int i = 0; i < 4; i++)
+                    {
+                        refs[i].SetActive(true);
+                    }
                 }
+                washov = true;
             }
-            washov = true;
         }
         else
         {
@@ -399,7 +439,7 @@ public class NodeObject : MonoBehaviour
             }
             washov = false;
         }
-        if(dragstate != -1)
+        if (dragstate != -1)
         {
             Gamer.Instance.CurrentMouse = Gamer.MouseState.Dragging;
             if (!ee)
@@ -409,6 +449,29 @@ public class NodeObject : MonoBehaviour
             }
         }
     }
+    public void DeleteMe()
+    {
+        foreach (var a in Connections)
+        {
+            if (!Gamer.Instance.myhomies.ContainsKey(a)) { continue; }
+            var aa = Gamer.Instance.myhomies[a];
+            aa.Connections.Remove(a);
+            Destroy(ConnectionLines[aa.UUID]);
+            aa.UpdateConnectionLines();
+        }
+
+        if (Gamer.Instance.connecting_uuid == UUID)
+        {
+            Gamer.Instance.connecting_uuid = "";
+            Gamer.Instance.CurrentMouse = Gamer.MouseState.None;
+            Destroy(Gamer.Instance.FakeLine);
+        }
+        Gamer.Instance.myhomies.Remove(UUID);
+        Destroy(gameObject);
+        return;
+    }
+
+
     public void OpenMyEditor()
     {
         switch (NodeType)
@@ -431,10 +494,39 @@ public class NodeObject : MonoBehaviour
         Gamer.Instance.CurrentMouse = Gamer.MouseState.DraggingWait;
         UpdateConnectionLines();
     }
-    Image ddd;
-    Image ddd1;
-    Image ddd2;
-    Image ddd3;
+    private Image ddd;
+    private Image ddd1;
+    private Image ddd2;
+    private Image ddd3;
+    private bool IsBoxColliding(RectTransform a, RectTransform b)
+    {
+        Vector2 apos = a.anchoredPosition;
+        Vector2 asize = a.sizeDelta;
+
+        Vector2 bpos = b.anchoredPosition;
+        Vector2 bsize = b.sizeDelta;
+
+        // Half sizes
+        Vector2 aHalf = asize * 0.5f;
+        Vector2 bHalf = bsize * 0.5f;
+
+        // Min / Max
+        float aMinX = apos.x - aHalf.x;
+        float aMaxX = apos.x + aHalf.x;
+        float aMinY = apos.y - aHalf.y;
+        float aMaxY = apos.y + aHalf.y;
+
+        float bMinX = bpos.x - bHalf.x;
+        float bMaxX = bpos.x + bHalf.x;
+        float bMinY = bpos.y - bHalf.y;
+        float bMaxY = bpos.y + bHalf.y;
+
+        // AABB overlap check
+        return aMinX < bMaxX &&
+               aMaxX > bMinX &&
+               aMinY < bMaxY &&
+               aMaxY > bMinY;
+    }
     public void UpdateDisplay()
     {
         titler.text = Name;
@@ -443,12 +535,12 @@ public class NodeObject : MonoBehaviour
         refs[5].SetActive(NodeType != "Node");
         refs[6].SetActive(NodeType != "Node");
         refs[7].SetActive(NodeType != "Node");
-        if(NodeType != "Node")
+        if (NodeType != "Node")
         {
-            if(ddd == null) ddd = refs[4].GetComponent<Image>();
-            if(ddd1 == null) ddd1 = refs[5].GetComponent<Image>();
-            if(ddd2 == null) ddd2 = refs[6].GetComponent<Image>();
-            if(ddd3 == null) ddd3 = refs[7].GetComponent<Image>();
+            if (ddd == null) ddd = refs[4].GetComponent<Image>();
+            if (ddd1 == null) ddd1 = refs[5].GetComponent<Image>();
+            if (ddd2 == null) ddd2 = refs[6].GetComponent<Image>();
+            if (ddd3 == null) ddd3 = refs[7].GetComponent<Image>();
             ddd.color = Gamer.Instance.NodeTypeColorDict[NodeType];
             ddd1.color = Gamer.Instance.NodeTypeColorDict[NodeType];
             ddd2.color = Gamer.Instance.NodeTypeColorDict[NodeType];
@@ -461,18 +553,18 @@ public class NodeObject : MonoBehaviour
 
 public interface SpecialNodeData
 {
-    public string DataToString();
-    public void StringToData(string data);
+    string DataToString();
+    void StringToData(string data);
 }
 public class CharacterData : SpecialNodeData
 {
     public List<PersonalityRef<string, int>> personalities = new List<PersonalityRef<string, int>>();
     public string DataToString()
     {
-        Dictionary<string,string> mydata = new Dictionary<string,string>();
+        Dictionary<string, string> mydata = new Dictionary<string, string>();
 
         var a = new List<string>();
-        foreach(var b in personalities)
+        foreach (var b in personalities)
         {
             a.Add(Converter.EscapedListToString(new List<string>() { b.a, b.b.ToString() }, "!!!"));
         }
@@ -496,7 +588,7 @@ public class CharacterData : SpecialNodeData
     }
 }
 
-public class PersonalityRef<A,B>
+public class PersonalityRef<A, B>
 {
     public A a;
     public B b;
