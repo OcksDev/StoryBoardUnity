@@ -661,6 +661,7 @@ public class Gamer : MonoBehaviour
         Debug.Log("Ended Drag!");
         Tags.refs["SelectionBG"].SetActive(true);
         UpdateSelectionAreaToMatchSelection();
+        if (dragging_ids.Count <= 1) ExitMultiSelect();
     }
     public void UpdateSelectionAreaToMatchSelection()
     {

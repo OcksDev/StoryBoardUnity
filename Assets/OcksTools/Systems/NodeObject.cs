@@ -194,7 +194,7 @@ public class NodeObject : MonoBehaviour
             else if (Gamer.Instance.dragging_ids.Contains(UUID))
             {
                 {
-                    Gamer.Instance.dragging_ids.Add(UUID);
+                    Gamer.Instance.dragging_ids.Remove(UUID);
                 }
             }
 
@@ -415,7 +415,7 @@ public class NodeObject : MonoBehaviour
 
         if (ww || dragstate != -1)
         {
-            if (Gamer.Instance.has_dragged && !Gamer.Instance.dragging_ids.Contains(UUID))
+            if (!Gamer.Instance.has_dragged || (Gamer.Instance.has_dragged && !Gamer.Instance.dragging_ids.Contains(UUID)))
             {
                 Gamer.Instance.hov_uuid = UUID;
                 if (!washov)
